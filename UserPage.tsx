@@ -34,7 +34,7 @@ const ColorBlock = ({ name, boxId }: ColorBlockProps) => (
 		style={[
 			styles.centeredContent,
 			styles.colorBlock,
-			{ backgroundColor: `rgba(255,255,255,0.25)` },
+			{backgroundColor: `rgba(255,255,255,0.25)`},
 		]}
 		draggingStyle={styles.dragging}
 		dragReleasedStyle={styles.dragging}
@@ -45,7 +45,7 @@ const ColorBlock = ({ name, boxId }: ColorBlockProps) => (
 	</DraxView>
 );
 
-const ColorDragDrop = (props: any) => {
+const ColorDragDrop = (props:any) => {
 
 
 	// const 모음
@@ -58,7 +58,6 @@ const ColorDragDrop = (props: any) => {
 	const [autoTag, setAutoTag] = useState<string[]>([]);
 	const [startText, setStartText] = useState<string[]>([]);
 	const [text_array, setText_Array] = useState(["사랑", "이별", "서정적", "슬픔", "뭉게구름", "따뜻한", "새벽", "감성"])
-	const [locUpdate, setLocUpdate] = useState(1)
 
 	const playlist = ['나만의 플레이리스트', '신나는 음악', '드라이브 할때 좋은 POP!', '추천 플레이리스트!']
 
@@ -66,14 +65,14 @@ const ColorDragDrop = (props: any) => {
 	const result = useContext(CoreContext);
 
 
-	function onClickSendTag() {
+	function onClickSendTag () {
 		console.log([...fixedTag, ...autoTag])
-		let add_list: any = []
-		fixedTag.map((tag, index) => (
-			add_list.push({ "tagName": tag, "isFixed": 1 })
+		let add_list :any = []
+		fixedTag.map((tag,index)=>(
+			add_list.push({"tagName":tag, "isFixed":1})
 		))
-		autoTag.map((tag, index) => (
-			add_list.push({ "tagName": tag, "isFixed": 0 })
+		autoTag.map((tag,index)=>(
+			add_list.push({"tagName":tag, "isFixed":0})
 		))
 		console.log(add_list)
 
@@ -83,7 +82,7 @@ const ColorDragDrop = (props: any) => {
 				"usertagList": [...fixedTag, ...autoTag]
 			}).catch(error => {
 				console.log(error.config)
-			});
+			  });
 	}
 
 	function find_nm(nm: any) {
@@ -105,15 +104,6 @@ const ColorDragDrop = (props: any) => {
 		}
 		setStartText(temp_list)
 	}
-
-	// useEffect(() => {
-
-	// 	const focus = props.navigation.addListener('focus', async () => {
-	// 	  setFixedTag(
-	// 	});
-	// 	return focus;
-	//   }, [props, props.navigation]
-	//   )
 
 	useEffect(() => {
 
@@ -143,7 +133,6 @@ const ColorDragDrop = (props: any) => {
 		<CoreConsumer>
 			{({ value, SetValue }) => (
 				<DraxProvider>
-					{console.log(5555)}
 					<View style={[rStyles.centeredView, rStyles.back_black]}>
 						<DraxScrollView>
 							<View style={{ height: 60, justifyContent: 'center' }}>
@@ -183,7 +172,7 @@ const ColorDragDrop = (props: any) => {
 								</View>
 								<SafeAreaView
 									edges={['top', 'left', 'right']}
-									style={{ flex: 1, alignItems: 'center' }}
+									style={{flex:1, alignItems:'center'}}
 								>
 									<View style={{ marginTop: 20 }}>
 										{Array.from(Array(1).keys()).map((n, index) =>
@@ -208,15 +197,17 @@ const ColorDragDrop = (props: any) => {
 										]}
 										receivingStyle={styles.receiving}
 										renderContent={({ viewState }) => {
+											// const receivingDrag = viewState?.receivingDrag;
+											// const incomingText = receivingDrag?.payload?.text;
+
 											return (
 												<>
-												
-													{(fixedTag.length) && (fixedTag.length > 0) ? (
+													{(fixedTag.length > 0) ? (
 														Array.from(Array(3).keys()).map((n, index) =>
 															<View key={n} style={{ flexDirection: 'row', paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center' }}>
 																{fixedTag.slice(n * 4, (n + 1) * 4).map((tag) => (
 																	<View key={tag}>
-																		<Text style={{fontSize:0}}>{locUpdate}</Text>
+																		<Text style={{ fontSize: 0 }}></Text>
 																		<ColorBlock
 																			name={tag}
 																			boxId='2'
@@ -236,7 +227,6 @@ const ColorDragDrop = (props: any) => {
 										onReceiveDragDrop={(event) => {
 											const { text, boxId } = event.dragged.payload
 												?? { text: '?' };
-												{setLocUpdate(locUpdate+1)}
 											if (boxId == '1') {
 												if (!fixedTag.includes(text) && !autoTag.includes(text)) {
 													setFixedTag([...fixedTag, text]);
@@ -270,12 +260,12 @@ const ColorDragDrop = (props: any) => {
 											}
 											return (
 												<View style={combinedStyles}>
-													{ (autoTag.length > 0) ? (
+													{(autoTag.length) && (autoTag.length > 0) ? (
 														Array.from(Array(3).keys()).map((n, index) =>
 															<View key={n} style={{ flexDirection: 'row', paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center' }}>
 																{autoTag.slice(n * 4, (n + 1) * 4).map((tag) => (
 																	<View key={tag}>
-																		<Text style={{fontSize:0}}>{locUpdate}</Text>
+																		<Text style={{ fontSize: 0 }}></Text>
 																		<ColorBlock
 																			name={tag}
 																			boxId='3'
@@ -295,8 +285,7 @@ const ColorDragDrop = (props: any) => {
 										}}
 										onReceiveDragDrop={(event) => {
 											const { text, boxId } = event.dragged.payload
-												?? { text: '?' };
-												{setLocUpdate(locUpdate+1)}
+												?? { text: '?'};
 											if (boxId == '1') {
 												if (!fixedTag.includes(text) && !autoTag.includes(text)) {
 													setAutoTag([...autoTag, text]);
@@ -338,7 +327,6 @@ const ColorDragDrop = (props: any) => {
 										onReceiveDragDrop={(event) => {
 											const { text, boxId } = event.dragged.payload
 												?? { text: '?' };
-												{setLocUpdate(locUpdate+1)}
 											if (boxId == '2') {
 												setFixedTag(fixedTag.filter(x => x !== text))
 											} else if (boxId == '3') {
@@ -353,9 +341,9 @@ const ColorDragDrop = (props: any) => {
 										longPressDelay={200}
 									/>
 									<TouchableOpacity onPress={() => {
-										{ SetValue([...fixedTag, ...autoTag]); }
+										{SetValue([...fixedTag, ...autoTag]);}
 										onClickSendTag()
-									}} style={{
+									 }} style={{
 										marginTop: 50,
 										backgroundColor: 'rgba(255, 255, 255, 0.25)', width: 130, height: 40, paddingVertical: 8,
 										paddingHorizontal: 20, borderRadius: 20, alignItems: 'center'
