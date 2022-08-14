@@ -44,11 +44,8 @@ const style = StyleSheet.create({
         flexDirection: 'row',
     },
     MusicStyle: {
-        backgroundColor: 'rgba(0.1, 0.1, 0.1, 0.2)',
-        marginRight: 10,
         width: 60,
         height: 60,
-        borderRadius: 7
     },
     Logo: {
         borderRadius: 100,

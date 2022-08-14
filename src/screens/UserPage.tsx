@@ -17,12 +17,13 @@ import {
 } from 'react-native-drax';
 
 import * as React from 'react';
-import { useState, useEffect, useRef, Component, useContext } from 'react';
-import { TextInput, Image, ScrollView, Modal } from 'react-native';
+import { useState, useEffect, useRef, Component, useContext, useCallback } from 'react';
+import { TextInput, Image, ScrollView, Modal, Animated } from 'react-native';
 import rStyles from '../styles/styles'
 import axios from 'axios';
 import * as Hangul from 'hangul-js';
 import { CoreContext, CoreConsumer } from '../context/CoreManagement';
+// import Animated from 'react-native-reanimated';
 
 interface ColorBlockProps {
 	name: string;
@@ -50,15 +51,16 @@ const ColorDragDrop = (props: any) => {
 
 	// const 모음
 
+	const renderTime = 10
 	const [modalVisible, setModalVisible] = useState(false);
 	const [userName, setUserName] = useState('User_1')
 	const [userId, setUserId] = useState('1')
 	const [UserImage, setUserImage] = useState('null')
 	const [fixedTag, setFixedTag] = useState<string[]>([]);
-	const [autoTag, setAutoTag] = useState<string[]>([]);
+	const [autoTag, setAutoTag] = useState<string[]>(['벚꽃','잔잔한','평화로운','봄바람']);
 	const [startText, setStartText] = useState<string[]>([]);
 	const [text_array, setText_Array] = useState(["사랑", "이별", "서정적", "슬픔", "뭉게구름", "따뜻한", "새벽", "감성"])
-	const [locUpdate, setLocUpdate] = useState(1)
+	const [inputText, setInputText] = useState('')
 
 	const playlist = ['나만의 플레이리스트', '신나는 음악', '드라이브 할때 좋은 POP!', '추천 플레이리스트!']
 
@@ -66,14 +68,23 @@ const ColorDragDrop = (props: any) => {
 	const result = useContext(CoreContext);
 
 
+	function reRendering() {
+		var autoCopy = [...autoTag]
+		setAutoTag([])
+		setTimeout(() => { setAutoTag(autoCopy); }, renderTime)
+		var fixedCopy = [...fixedTag]
+		setFixedTag([])
+		setTimeout(() => { setFixedTag(fixedCopy) }, renderTime)
+	}
+
 	function onClickSendTag() {
 		console.log([...fixedTag, ...autoTag])
 		let add_list: any = []
 		fixedTag.map((tag, index) => (
-			add_list.push({ "tagName": tag, "isFixed": 1 })
+			add_list.push({ "tagName": tag, "isFixed": 'FIXED' })
 		))
 		autoTag.map((tag, index) => (
-			add_list.push({ "tagName": tag, "isFixed": 0 })
+			add_list.push({ "tagName": tag, "isFixed": 'UNFIXED' })
 		))
 		console.log(add_list)
 
@@ -93,7 +104,6 @@ const ColorDragDrop = (props: any) => {
 		if (nm != "") {
 			text_array.map((x) => {
 				flag = true;
-				console.log(Hangul.disassemble(nm))
 				Hangul.disassemble(nm).map((y, index) => {
 					if (y !== Hangul.disassemble(x)[index]) {
 						flag = false;
@@ -139,11 +149,23 @@ const ColorDragDrop = (props: any) => {
 	}, []
 	)
 
+	const fadeAnim = useRef(new Animated.Value(0)).current
+	useEffect(() => {
+		Animated.timing(
+		  fadeAnim,
+		  {
+			toValue: 1,
+			useNativeDriver : true,
+			duration: 500,
+		  }
+		).start();
+	  }, [fadeAnim,fixedTag,autoTag])
+
+
 	return (
 		<CoreConsumer>
 			{({ value, SetValue }) => (
 				<DraxProvider>
-					{console.log(5555)}
 					<View style={[rStyles.centeredView, rStyles.back_black]}>
 						<DraxScrollView>
 							<View style={{ height: 60, justifyContent: 'center' }}>
@@ -177,7 +199,16 @@ const ColorDragDrop = (props: any) => {
 
 									<TouchableOpacity style={{ alignItems: 'center', marginTop: 30 }}>
 										<View style={{ alignItems: 'center', justifyContent: 'center', width: '80%', backgroundColor: 'rgba(255,255,255,0.25)', height: 40, borderRadius: 20 }}>
-											<TextInput onChangeText={(nm) => { find_nm(nm) }} style={{ padding: 0, fontSize: 17 }} placeholder="태그 추가 (예시 : 새벽, 따뜻한 ... )" placeholderTextColor={'white'}></TextInput>
+											<TextInput onChangeText={(nm) => {
+												find_nm(nm);
+												if (inputText == '') {
+													reRendering()
+												}
+												if (nm == '' && inputText !== '') {
+													reRendering()
+												}
+												setInputText(nm)
+											}} style={{ padding: 0, fontSize: 17 }} placeholder="태그 추가 (예시 : 새벽, 따뜻한 ... )" placeholderTextColor={'white'}></TextInput>
 										</View>
 									</TouchableOpacity>
 								</View>
@@ -185,12 +216,11 @@ const ColorDragDrop = (props: any) => {
 									edges={['top', 'left', 'right']}
 									style={{ flex: 1, alignItems: 'center' }}
 								>
-									<View style={{ marginTop: 20 }}>
+									<View style={inputText == '' ? { marginTop: 20 } : { marginTop: 20, height: 60}}>
 										{Array.from(Array(1).keys()).map((n, index) =>
 											<View key={n} style={{ flexDirection: 'row', paddingHorizontal: 20, marginBottom: 10, alignItems: 'center', justifyContent: 'center' }}>
 												{startText.slice(n * 5, (n + 1) * 5).map((tag) => (
 													<View key={tag}>
-														<Text style={{ fontSize: 0 }}></Text>
 														<ColorBlock
 															name={tag}
 															boxId='1'
@@ -200,118 +230,133 @@ const ColorDragDrop = (props: any) => {
 											</View>
 										)}
 									</View>
-									<DraxView
-										style={[
-											styles.centeredContent,
-											styles.receivingZone,
-											{ width: 370, backgroundColor: 'rgba(153,234,163,0.3)' }
-										]}
-										receivingStyle={styles.receiving}
-										renderContent={({ viewState }) => {
-											return (
-												<>
-												
-													{(fixedTag.length) && (fixedTag.length > 0) ? (
-														Array.from(Array(3).keys()).map((n, index) =>
-															<View key={n} style={{ flexDirection: 'row', paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center' }}>
-																{fixedTag.slice(n * 4, (n + 1) * 4).map((tag) => (
-																	<View key={tag}>
-																		<Text style={{fontSize:0}}>{locUpdate}</Text>
-																		<ColorBlock
-																			name={tag}
-																			boxId='2'
-																		/>
-																	</View>
-																))}
-															</View>
-														)
-													) : (
-														<Text style={styles.instruction}>
-															Drag Tag
-														</Text>
-													)}
-												</>
-											);
-										}}
-										onReceiveDragDrop={(event) => {
-											const { text, boxId } = event.dragged.payload
-												?? { text: '?' };
-												{setLocUpdate(locUpdate+1)}
-											if (boxId == '1') {
-												if (!fixedTag.includes(text) && !autoTag.includes(text)) {
-													setFixedTag([...fixedTag, text]);
-													setStartText(startText.filter(x => x !== text))
-												}
-
-											} else if (boxId == '3') {
-												setFixedTag([...fixedTag, text]);
-												setAutoTag(autoTag.filter(x => x !== text))
-
-											}
-
-											return DraxSnapbackTargetPreset.None;
-										}}
-									/>
-									<DraxView
-										style={styles.stagingLayout}
-										renderContent={({ viewState }) => {
-											const receivingDrag = viewState?.receivingDrag;
-											const active = viewState?.dragStatus !== DraxViewDragStatus.Inactive;
-											const combinedStyles: ViewStyle[] = [
+									<>
+										<DraxView
+											style={[
 												styles.centeredContent,
-												styles.stagingZone,
-												{ width: 370 },
-												{ backgroundColor: 'rgba(170,224,255,0.35)' }
-											];
-											if (active) {
-												combinedStyles.push({ opacity: 0.2 });
-											} else if (receivingDrag) {
-												combinedStyles.push(styles.receiving);
-											}
-											return (
-												<View style={combinedStyles}>
-													{ (autoTag.length > 0) ? (
-														Array.from(Array(3).keys()).map((n, index) =>
-															<View key={n} style={{ flexDirection: 'row', paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center' }}>
-																{autoTag.slice(n * 4, (n + 1) * 4).map((tag) => (
-																	<View key={tag}>
-																		<Text style={{fontSize:0}}>{locUpdate}</Text>
-																		<ColorBlock
-																			name={tag}
-																			boxId='3'
-																		/>
-																	</View>
-																))}
-															</View>
-														)
-													) : (
-														<Text style={styles.instruction}>
-															Drag Tag
-														</Text>
-													)}
+												styles.receivingZone,
+												{ width: 370, backgroundColor: 'rgba(153,234,163,0.3)' }
+											]}
+											receivingStyle={styles.receiving}
+											renderContent={({ viewState }) => {
+												return (
+													<>
+														{(fixedTag.length) && (fixedTag.length > 0) ? (
+															Array.from(Array(3).keys()).map((n, index) =>
+																<View key={index} style={{ flexDirection: 'row', paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center' }}>
+																	{fixedTag.slice(n * 4, (n + 1) * 4).map((tag, index) => (
+																		<Animated.View key={index} style={{opacity:fadeAnim}}>
+																			<ColorBlock
+																				name={tag}
+																				boxId='2'
+																			/>
+																		</Animated.View>
+																	))}
+																</View>
+															)
+														) : (
+															<Text style={styles.instruction}>
+																Drag Tag
+															</Text>
+														)}
+													</>
+												);
+											}}
+											onReceiveDragDrop={(event) => {
+												const { text, boxId } = event.dragged.payload
+													?? { text: '?' };
+												if (boxId == '1') {
+													if (!fixedTag.includes(text) && !autoTag.includes(text)) {
+														var fixedCopy = [...fixedTag, text]
+														setFixedTag([])
+														setTimeout(() => { setFixedTag(fixedCopy); }, renderTime)
+														var startCopy = startText.filter(x => x != text)
+														setStartText([])
+														setTimeout(() => { setStartText(startCopy) }, renderTime)
+													}
 
-												</View>
-											);
-										}}
-										onReceiveDragDrop={(event) => {
-											const { text, boxId } = event.dragged.payload
-												?? { text: '?' };
-												{setLocUpdate(locUpdate+1)}
-											if (boxId == '1') {
-												if (!fixedTag.includes(text) && !autoTag.includes(text)) {
-													setAutoTag([...autoTag, text]);
-													setStartText(startText.filter(x => x !== text))
-												} else {
-													Alert.alert('해당 태그가 존재합니다.')
+												} else if (boxId == '3') {
+													var autoCopy = autoTag.filter(x => x != text)
+													setAutoTag([])
+													setTimeout(() => { setAutoTag(autoCopy); }, renderTime)
+													var fixedCopy = [...fixedTag, text]
+													setFixedTag([])
+													setTimeout(() => { setFixedTag(fixedCopy) }, renderTime)
 												}
-											} else if (boxId == '2') {
-												setAutoTag([...autoTag, text]);
-												setFixedTag(fixedTag.filter(x => x !== text))
-											}
 
-											return DraxSnapbackTargetPreset.None;
-										}}
-									/>
+												return DraxSnapbackTargetPreset.None;
+											}}
+										/>
+									</>
+									<>
+										<DraxView
+											style={styles.stagingLayout}
+											renderContent={({ viewState }) => {
+												const receivingDrag = viewState?.receivingDrag;
+												const active = viewState?.dragStatus !== DraxViewDragStatus.Inactive;
+												const combinedStyles: ViewStyle[] = [
+													styles.centeredContent,
+													styles.stagingZone,
+													{ width: 370 },
+													{ backgroundColor: 'rgba(170,224,255,0.35)' }
+												];
+												if (active) {
+													combinedStyles.push({ opacity: 0.2 });
+												} else if (receivingDrag) {
+													combinedStyles.push(styles.receiving);
+												}
+												return (
+													<View style={combinedStyles}>
+														{(autoTag.length > 0) ? (
+															Array.from(Array(3).keys()).map((n, index) =>
+																<View key={n} style={{ flexDirection: 'row', paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center' }}>
+
+																	{autoTag.slice(n * 4, (n + 1) * 4).map((tag, index) => (
+																		<Animated.View key={index} style={{opacity:fadeAnim}}>
+																			<ColorBlock
+																				name={tag}
+																				boxId='3'
+																			/>
+																		</Animated.View>
+																	))}
+																</View>
+															)
+														) : (
+															<Text style={styles.instruction}>
+																Drag Tag
+															</Text>
+														)}
+
+													</View>
+												);
+											}}
+											onReceiveDragDrop={(event) => {
+												const { text, boxId } = event.dragged.payload
+													?? { text: '?' };
+												if (boxId == '1') {
+													if (!fixedTag.includes(text) && !autoTag.includes(text)) {
+														var autoCopy = [...autoTag, text]
+														setAutoTag([])
+														setTimeout(() => { setAutoTag(autoCopy); }, renderTime)
+														var startCopy = startText.filter(x => x != text)
+														setStartText([])
+														setTimeout(() => { setStartText(startCopy) }, renderTime)
+													} else {
+														Alert.alert('해당 태그가 존재합니다.')
+													}
+												} else if (boxId == '2') {
+													var autoCopy = [...autoTag, text]
+													setAutoTag([])
+													setTimeout(() => { setAutoTag(autoCopy); }, renderTime)
+													var fixedCopy = fixedTag.filter(x => x != text)
+													setFixedTag([])
+													setTimeout(() => { setFixedTag(fixedCopy) }, renderTime)
+												}
+
+												return DraxSnapbackTargetPreset.None;
+											}}
+										/>
+									</>
 								</SafeAreaView>
 								<View style={{ flexDirection: 'row', paddingRight: 30, marginTop: 5 }}>
 									<DraxView
@@ -338,11 +383,14 @@ const ColorDragDrop = (props: any) => {
 										onReceiveDragDrop={(event) => {
 											const { text, boxId } = event.dragged.payload
 												?? { text: '?' };
-												{setLocUpdate(locUpdate+1)}
 											if (boxId == '2') {
-												setFixedTag(fixedTag.filter(x => x !== text))
+												var fixCopy = fixedTag.filter(x => x != text)
+												setFixedTag([])
+												setTimeout(() => { setFixedTag(fixCopy) }, renderTime)
 											} else if (boxId == '3') {
-												setAutoTag(autoTag.filter(x => x !== text))
+												var autoCopy = autoTag.filter(x => x != text)
+												setAutoTag([])
+												setTimeout(() => { setAutoTag(autoCopy) }, renderTime)
 											}
 
 											return DraxSnapbackTargetPreset.None;

@@ -2,6 +2,8 @@ import {
   StyleSheet,
   View,
   Text,
+  ImageBackground,
+  Alert,
 } from 'react-native';
 
 import * as React from 'react';
@@ -38,29 +40,19 @@ const ReorderableList = (props) => {
   const [backValue, SetbackValue] = useState(result.value);
   const navigation = useNavigation();
 
-
-
-  const onClickMusic = () => {
+  function onClickMusic(music_id: Int32Array) {
     axios
-      .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/music/stream/${1444}`).
+      .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/music/stream/${music_id}`).
       then((response) => {
         setMusicInfo(response.data);
       }).catch(error => {
         console.log(error.config)
       });
     setPlayModalVisible(true)
-    // setMusicId(music.musicId)
   }
 
   useEffect(() => {
-    axios
-      .get(`http://3.35.154.3:5000/music/stream/1`).
-      then((response) => {
-        {setMusicInfo(response.data);}
-        console.log(123123)
-      }).catch(error => {
-        console.log(error.config)
-      })
+
 
     axios
       .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/main/${3}`)
@@ -105,17 +97,17 @@ const ReorderableList = (props) => {
                   <Text style={{ fontSize: 25, color: 'white' }}>{musicInfo.musicTitle}</Text>
                   <Text style={{ fontSize: 20, color: 'gray', marginTop: 5 }}>({musicInfo.artist})</Text>
                 </View>
-                <View style={{flexDirection:'row', marginTop:20, alignItems:'center',justifyContent:'center'}}>
-                  {musicInfo.tagList && musicInfo.tagList.map((tag:any,index)=>(
+                <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center', justifyContent: 'center' }}>
+                  {musicInfo.tagList && musicInfo.tagList.map((tag: any, index) => (
                     <View key={index}>
-                    <Text style={{color:'gray', fontSize:17,marginHorizontal:5}}>#{tag}</Text>
+                      <Text style={{ color: 'gray', fontSize: 17, marginHorizontal: 5 }}>#{tag}</Text>
                     </View>
                   ))}
                 </View>
                 <View style={{ flex: 7 }}>
                   <View style={{ flexDirection: 'row', marginBottom: 30 }}>
                   </View>
-                  <View style={{ marginTop:35}}>
+                  <View style={{ marginTop: 35 }}>
                     <YoutubePlayer
                       width={435}
                       height={300}
@@ -131,172 +123,184 @@ const ReorderableList = (props) => {
                 </View>
                 <View style={{ flex: 7 }}>
                   <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                    {musicInfo.musicLyric && musicInfo.musicLyric.split('\n').slice(0,7).map((lyric : any,index)=>(
+                    {musicInfo.musicLyric && musicInfo.musicLyric.split('\n').slice(0, 7).map((lyric: any, index) => (
                       <View key={index}>
-                      <Text style={{ fontSize: 18, color: 'gray', marginTop: 10 }}>{lyric}</Text>
+                        <Text style={{ fontSize: 18, color: 'gray', marginTop: 10 }}>{lyric}</Text>
                       </View>
                     ))}
+                  </View>
+                </View>
+                <View>
+
                 </View>
               </View>
-              <View>
-
-              </View>
             </View>
-        </View>
           </Modal>
 
-          {/* 태그 기반 추천 음악 Page */ }
+          {/* 태그 기반 추천 음악 Page */}
 
-  <Modal
-    animationType="slide"
-    transparent={true}
-    visible={mainTagModalVisible}
-    onRequestClose={() => {
-      setMainTagModalVisible(!mainTagModalVisible);
-    }}
-  >
-    <View style={[rStyles.centeredView, { backgroundColor: 'black' }]}>
-      <View style={{ flex: 1, height: 60, justifyContent: 'center' }}>
-        <View style={{ paddingRight: 270, flexDirection: 'row' }}>
-          <TouchableOpacity onPress={() => setMainTagModalVisible(!mainTagModalVisible)}>
-            <View style={{}}><Image source={require('../images/magician.jpg')} style={rStyles.Logo} /></View>
-          </TouchableOpacity>
-          <View style={{ marginTop: 5 }}><Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>Music App</Text></View>
-        </View>
-      </View>
-      <View style={{ flex: 11, alignItems: 'flex-start' }}>
-        <View style={rStyles.MusicContainer}>
-          <Text style={{ fontWeight: 'bold', marginBottom: 40, marginTop: 40, fontSize: 25, color: 'white' }}>{recTag} - 연관 추천 음악!</Text>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={mainTagModalVisible}
+            onRequestClose={() => {
+              setMainTagModalVisible(!mainTagModalVisible);
+            }}
+          >
+            <View style={[rStyles.centeredView, { backgroundColor: 'black' }]}>
+              <View style={{ flex: 1, height: 60, justifyContent: 'center' }}>
+                <View style={{ paddingRight: 270, flexDirection: 'row' }}>
+                  <TouchableOpacity onPress={() => setMainTagModalVisible(!mainTagModalVisible)}>
+                    <View style={{}}><Image source={require('../images/magician.jpg')} style={rStyles.Logo} /></View>
+                  </TouchableOpacity>
+                  <View style={{ marginTop: 5 }}><Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>Music App</Text></View>
+                </View>
+              </View>
+              <View style={{ flex: 11, alignItems: 'flex-start' }}>
+                <View style={rStyles.MusicContainer}>
+                  <Text style={{ fontWeight: 'bold', marginBottom: 40, marginTop: 40, fontSize: 25, color: 'white' }}>{recTag} - 연관 추천 음악!</Text>
 
-          {rMusicList.slice(0, 8).map((music: any, index) => (
-            <View style={[rStyles.MusicBox, { flexDirection: 'row' }]} key={index}>
-              <TouchableOpacity onPress={onClickMusic}>
-                <Image source={{ uri: `data:image/jpeg;base64,${music.musicImage}` }} style={[rStyles.MusicStyle, { marginRight: 20 }]} />
+                  {rMusicList.slice(0, 8).map((music: any, index) => (
+                    <View style={[rStyles.MusicBox, { flexDirection: 'row' }]} key={index}>
+                      <TouchableOpacity>
+                        <Image source={{ uri: `data:image/jpeg;base64,${music.musicImage}` }} style={[rStyles.MusicStyle, { marginRight: 20 }]} />
+                      </TouchableOpacity>
+                      <View style={{ flex: 7 }}>
+                        <Text style={{ fontSize: 17, color: 'white' }}>
+                          {music.musicTitle}
+                        </Text>
+                        <Text style={{ fontSize: 17, color: 'gray' }}>
+                          {music.musicId}
+                        </Text>
+                      </View>
+                      <View style={{ flex: 0.4 }}>
+                        <Image source={require('../images/more.png')} style={{ opacity: 0.5, marginTop: 5, width: 15, height: 15 }} />
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            </View>
+          </Modal>
+          {/* 메인 페이지 */}
+          <ScrollView showsVerticalScrollIndicator={false} style={rStyles.scrollView} stickyHeaderIndices={[1]} persistentScrollbar={true}>
+            {SetValue(backValue)}
+            <View style={{ height: 60, justifyContent: 'center' }}>
+              <View style={{ flexDirection: 'row' }}>
+                <View><Image source={require('../images/magician.jpg')} style={rStyles.Logo} /></View>
+                <View style={{ flex: 5, marginTop: 5 }}><Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>Music App</Text></View>
+                <TouchableOpacity>
+                  <View style={{ flex: 2 }}><Image source={{ uri: `data:image/jpeg;base64,${UserImage}` }} style={[rStyles.Logo, { marginRight: 20 }]} /></View>
+                </TouchableOpacity>
+              </View>
+            </View>
+            <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{ backgroundColor: 'black', flex: 1, justifyContent: 'center', paddingVertical: 15, }}>
+              <View style={{ flexDirection: 'row' }}>
+                <View style={{ width: 15 }}></View>
+                {backValue && backValue.map((tag, index) => (
+                  <TouchableOpacity key={index} onPress={() => {
+                    setMainTagModalVisible(!mainTagModalVisible)
+                    setRecTag(tag)
+                  }
+                  }>
+                    <View style={rStyles.container}>
+                      <Text style={{ fontSize: 19, color: "white" }}>
+                        {tag}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+            </ScrollView>
+            <View style={{ flex: 7, alignItems: 'flex-start', justifyContent: 'center' }}>
+              <View style={rStyles.MusicContainer}>
+                <Text style={{ color: 'white', fontWeight: 'bold', marginBottom: 15, marginTop: 30, fontSize: 30 }}>추천 음악!</Text>
+                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row' }}>
+                  {[0, 1, 2, 3].map((n, index) => (
+                    <View key={index}>
+                      {
+                        rMusicList.slice(n * 4, (n + 1) * 4).map((music: any, index) => (
+
+                          <View style={[rStyles.MusicBox, { flexDirection: 'row' }]} key={index}>
+                            <TouchableOpacity onPress={()=> onClickMusic(music.musicId)}  style={{flex:20}}>
+                              <View>
+                                <ImageBackground source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
+                                  style={{ width: 60, height: 60, marginRight: 20 }} borderRadius={10} imageStyle={{ opacity: 0.5 }}>
+                                  <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${music.musicId}.jpg` }}
+                                    style={[rStyles.MusicStyle]} />
+                                </ImageBackground>
+                                <View style={{ flex: 7 }}>
+                                  <Text style={{ fontSize: 17, color: 'white' }}>
+                                    {music.musicTitle}
+                                  </Text>
+                                  <Text style={{ fontSize: 17, color: 'gray' }}>
+                                    {music.musicArtist}
+                                  </Text>
+                                </View>
+                              </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={()=> Alert.alert('곡 정보')} style={{flex:1}}>
+                                <Image source={require('../images/more.png')} style={{ opacity: 0.5, marginTop: 5, width: 15, height: 15 }} />
+                            </TouchableOpacity>
+                          </View>
+                        ))
+                      }
+                    </View>
+                  ))
+                  }
+                </ScrollView>
+              </View>
+            </View >
+            <View style={{ marginTop: 40, justifyContent: 'center' }}>
+              <TouchableOpacity>
+                <Text style={{ color: 'white', marginLeft: 25, fontWeight: 'bold', fontSize: 30 }}>
+                  다시 듣기
+                </Text>
               </TouchableOpacity>
-              <View style={{ flex: 7 }}>
-                <Text style={{ fontSize: 17, color: 'white' }}>
-                  {music.musicTitle}
-                </Text>
-                <Text style={{ fontSize: 17, color: 'gray' }}>
-                  {music.musicId}
-                </Text>
-              </View>
-              <View style={{ flex: 0.4 }}>
-                <Image source={require('../images/more.png')} style={{ opacity: 0.5, marginTop: 5, width: 15, height: 15 }} />
-              </View>
+              { }
+              <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{ paddingHorizontal: 25, paddingVertical: 15 }}>
+                {Array.from(Array(4).keys()).map((n, index) => {
+                  return (
+                    <View key={index} style={{ margin: 10 }}>
+                      <ImageBackground source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
+                        style={{ width: 100, height: 100 }} borderRadius={10} imageStyle={{ opacity: 0.5 }}>
+                        <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_219${n + 5}.jpg` }}
+                          style={{ borderRadius: 10, width: '100%', height: '100%' }} />
+                      </ImageBackground>
+                      <Text style={{ color: 'white' }}>{Sample_Replay[n].title}</Text>
+                    </View>
+                  )
+                })}
+              </ScrollView>
             </View>
-          ))}
-        </View>
-      </View>
-    </View>
-  </Modal>
-  {/* 메인 페이지 */ }
-  <ScrollView showsVerticalScrollIndicator={false} style={rStyles.scrollView} stickyHeaderIndices={[1]} persistentScrollbar={true}>
-    {SetValue(backValue)}
-    <View style={{ height: 60, justifyContent: 'center' }}>
-      <View style={{ flexDirection: 'row' }}>
-        <View><Image source={require('../images/magician.jpg')} style={rStyles.Logo} /></View>
-        <View style={{ flex: 5, marginTop: 5 }}><Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>Music App</Text></View>
-        <TouchableOpacity>
-          <View style={{ flex: 2 }}><Image source={{ uri: `data:image/jpeg;base64,${UserImage}` }} style={[rStyles.Logo, { marginRight: 20 }]} /></View>
-        </TouchableOpacity>
-      </View>
-    </View>
-    <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{ backgroundColor: 'black', flex: 1, justifyContent: 'center', paddingVertical: 15, }}>
-      <View style={{ flexDirection: 'row' }}>
-        <View style={{ width: 15 }}></View>
-        {backValue && backValue.map((tag,index) => (
-          <TouchableOpacity key={index} onPress={() => {
-            setMainTagModalVisible(!mainTagModalVisible)
-            setRecTag(tag)
-          }
-          }>
-            <View style={rStyles.container}>
-              <Text style={{ fontSize: 19, color: "white" }}>
-                {tag}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-    </ScrollView>
-    <View style={{ flex: 7, alignItems: 'flex-start', justifyContent: 'center' }}>
-      <View style={rStyles.MusicContainer}>
-        <Text style={{ color: 'white', fontWeight: 'bold', marginBottom: 15, marginTop: 30, fontSize: 30 }}>추천 음악!</Text>
-        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row' }}>
-          {[0, 1, 2, 3].map((n, index) => (
-            <View key={index}>
-              {
-                rMusicList.slice(n * 4, (n + 1) * 4).map((music: any, index) => (
-                  <View style={[rStyles.MusicBox, { flexDirection: 'row' }]} key={index}>
-                    <TouchableOpacity onPress={onClickMusic}>
-                      <Image source={{ uri: `data:image/jpeg;base64,${music.musicImage}` }} style={[rStyles.MusicStyle, { marginRight: 20 }]} />
+            <View style={{ marginTop: 40, justifyContent: 'center' }}>
+              <Text style={{ marginLeft: 25, color: 'white', fontWeight: 'bold', fontSize: 30 }}>Music Mix</Text>
+              <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{ paddingHorizontal: 25, paddingVertical: 15 }}>
+                {[...Array(10)].map((n, index) => {
+                  return (
+                    <TouchableOpacity key={index}>
+                      <Image source={require('../images/music_default.png')} key={n} style={{ borderColor: 'gray', borderRadius: 10, width: 100, height: 100, margin: 10, opacity: 0.7 }}>
+                      </Image>
                     </TouchableOpacity>
-                    <View style={{ flex: 7 }}>
-                      <Text style={{ fontSize: 17, color: 'white' }}>
-                        {music.musicTitle}
-                      </Text>
-                      <Text style={{ fontSize: 17, color: 'gray' }}>
-                        {music.musicArtist}
-                      </Text>
-                    </View>
-                    <View style={{ flex: 0.4 }}>
-                      <Image source={require('../images/more.png')} style={{ opacity: 0.5, marginTop: 5, width: 15, height: 15 }} />
-                    </View>
-                  </View>
-                ))
-              }
+                  )
+                })}
+              </ScrollView>
             </View>
-          ))
-          }
-        </ScrollView>
-      </View>
-    </View >
-    <View style={{ marginTop: 40, justifyContent: 'center' }}>
-      <TouchableOpacity>
-        <Text style={{ color: 'white', marginLeft: 25, fontWeight: 'bold', fontSize: 30 }}>
-          다시 듣기
-        </Text>
-      </TouchableOpacity>
-      <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{ paddingHorizontal: 25, paddingVertical: 15 }}>
-        {Array.from(Array(4).keys()).map((n, index) => {
-          return (
-            <View key={index}>
-              <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_118${n + 1}.jpg` }} style={{ borderWidth: 0.2, borderColor: 'gray', borderRadius: 7, width: 100, height: 100, margin: 10 }} />
-              <Text style={{ color: 'white' }}>{Sample_Replay[n].title}</Text>
+            <View style={{ marginTop: 40, justifyContent: 'center' }}>
+              <Text style={{ marginLeft: 25, fontWeight: 'bold', fontSize: 30, color: 'white', }}>Music Rec Playlist</Text>
+              <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{ paddingHorizontal: 25, paddingVertical: 15 }}>
+                {[...Array(10)].map((n, index) => {
+                  return (
+                    <TouchableOpacity key={index}>
+                      <Image source={require('../images/music_default.png')} key={n} style={{ borderColor: 'gray', borderRadius: 10, width: 100, height: 100, margin: 10, opacity: 0.7 }}>
+                      </Image>
+                    </TouchableOpacity>
+                  )
+                })}
+              </ScrollView>
             </View>
-          )
-        })}
-      </ScrollView>
-    </View>
-    <View style={{ marginTop: 40, justifyContent: 'center' }}>
-      <Text style={{ marginLeft: 25, color: 'white', fontWeight: 'bold', fontSize: 30 }}>Music Mix</Text>
-      <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{ paddingHorizontal: 25, paddingVertical: 15 }}>
-        {[...Array(10)].map((n, index) => {
-          return (
-            <TouchableOpacity key={index}>
-              <Image source={require('../images/music_default.png')} key={n} style={{ borderColor: 'gray', borderRadius: 10, width: 100, height: 100, margin: 10, opacity: 0.7 }}>
-              </Image>
-            </TouchableOpacity>
-          )
-        })}
-      </ScrollView>
-    </View>
-    <View style={{ marginTop: 40, justifyContent: 'center' }}>
-      <Text style={{ marginLeft: 25, fontWeight: 'bold', fontSize: 30, color: 'white', }}>Music Rec Playlist</Text>
-      <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{ paddingHorizontal: 25, paddingVertical: 15 }}>
-        {[...Array(10)].map((n, index) => {
-          return (
-            <TouchableOpacity key={index}>
-              <Image source={require('../images/music_default.png')} key={n} style={{ borderColor: 'gray', borderRadius: 10, width: 100, height: 100, margin: 10, opacity: 0.7 }}>
-              </Image>
-            </TouchableOpacity>
-          )
-        })}
-      </ScrollView>
-    </View>
-  </ScrollView >
+          </ScrollView >
         </View >
       )}
     </CoreConsumer >

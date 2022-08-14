@@ -9,14 +9,12 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import UserPage from './screens/UserPage';
 import MainPage from './screens/MainPage';
 import Search from './screens/Search';
-import Route from './screens/Route';
 
 import {CoreContext} from './context/CoreManagement';
 
 
-
 const { Navigator, Screen } = createBottomTabNavigator();
-const MyTheme = {
+const MyTheme : any = {
 	dark: true,
 	colors: {
 		primary: 'white',
