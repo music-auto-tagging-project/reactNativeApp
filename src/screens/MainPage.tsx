@@ -40,7 +40,7 @@ const ReorderableList = (props) => {
   const [backValue, SetbackValue] = useState(result.value);
   const navigation = useNavigation();
 
-  function onClickMusic(music_id: Int32Array) {
+  function onClickMusic(music_id: number) {
     axios
       .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/music/stream/${music_id}`).
       then((response) => {
@@ -94,11 +94,13 @@ const ReorderableList = (props) => {
             <View style={[rStyles.centeredView, { backgroundColor: 'black' }]}>
               <View style={{ flex: 1 }}>
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 40 }}>
-                  <Text style={{ fontSize: 25, color: 'white' }}>{musicInfo.musicTitle}</Text>
-                  <Text style={{ fontSize: 20, color: 'gray', marginTop: 5 }}>({musicInfo.artist})</Text>
+                  { musicInfo.musicTitle && ((musicInfo.musicTitle.length > 24) ? (
+                    <Text style={{ fontSize: 25, color: 'white' }}>{musicInfo.musicTitle.slice(0,22)+'...'}</Text>
+                  ) : <Text style={{ fontSize: 25, color: 'white' }}>{musicInfo.musicTitle}</Text>)}                  
+                  <Text style={{ fontSize: 20, color: 'gray', marginTop: 8 }}>{musicInfo.artist}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', marginTop: 20, alignItems: 'center', justifyContent: 'center' }}>
-                  {musicInfo.tagList && musicInfo.tagList.map((tag: any, index) => (
+                  {musicInfo.tagList && musicInfo.tagList.map((tag: any, index:any) => (
                     <View key={index}>
                       <Text style={{ color: 'gray', fontSize: 17, marginHorizontal: 5 }}>#{tag}</Text>
                     </View>
@@ -223,8 +225,8 @@ const ReorderableList = (props) => {
                         rMusicList.slice(n * 4, (n + 1) * 4).map((music: any, index) => (
 
                           <View style={[rStyles.MusicBox, { flexDirection: 'row' }]} key={index}>
-                            <TouchableOpacity onPress={()=> onClickMusic(music.musicId)}  style={{flex:20}}>
-                              <View>
+                            <TouchableOpacity onPress={()=> onClickMusic(music.musicId)} style={{flex:20}}>
+                              <View style={{flexDirection:'row'}}>
                                 <ImageBackground source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
                                   style={{ width: 60, height: 60, marginRight: 20 }} borderRadius={10} imageStyle={{ opacity: 0.5 }}>
                                   <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${music.musicId}.jpg` }}
@@ -260,16 +262,16 @@ const ReorderableList = (props) => {
               </TouchableOpacity>
               { }
               <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{ paddingHorizontal: 25, paddingVertical: 15 }}>
-                {Array.from(Array(4).keys()).map((n, index) => {
+                {Array.from(Array(8).keys()).map((n, index) => {
                   return (
-                    <View key={index} style={{ margin: 10 }}>
+                    <TouchableOpacity key={index} style={{ margin: 10 }} onPress={()=> onClickMusic(2190 + n+4)}>
                       <ImageBackground source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
                         style={{ width: 100, height: 100 }} borderRadius={10} imageStyle={{ opacity: 0.5 }}>
-                        <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_219${n + 5}.jpg` }}
+                        <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_219${n + 4}.jpg` }}
                           style={{ borderRadius: 10, width: '100%', height: '100%' }} />
                       </ImageBackground>
                       <Text style={{ color: 'white' }}>{Sample_Replay[n].title}</Text>
-                    </View>
+                    </TouchableOpacity>
                   )
                 })}
               </ScrollView>

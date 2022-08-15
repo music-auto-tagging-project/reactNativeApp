@@ -62,9 +62,9 @@ const style = StyleSheet.create({
         borderRadius: 100,
         width: 100,
         height: 100,
-        borderWidth: 1,
+        borderWidth: 2,
         marginRight: 40,
-        borderColor: 'gray'
+        borderColor: 'white'
     },
     mypagebox1: {
         paddingLeft: 40,

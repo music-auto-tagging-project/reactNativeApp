@@ -18,11 +18,13 @@ import {
 
 import * as React from 'react';
 import { useState, useEffect, useRef, Component, useContext, useCallback } from 'react';
-import { TextInput, Image, ScrollView, Modal, Animated } from 'react-native';
+import { TextInput, Image, ScrollView, Modal, Animated, ImageBackground } from 'react-native';
 import rStyles from '../styles/styles'
 import axios from 'axios';
 import * as Hangul from 'hangul-js';
 import { CoreContext, CoreConsumer } from '../context/CoreManagement';
+import tag_data from '../etc/tag'
+import { add } from 'react-native-reanimated';
 // import Animated from 'react-native-reanimated';
 
 interface ColorBlockProps {
@@ -57,10 +59,11 @@ const ColorDragDrop = (props: any) => {
 	const [userId, setUserId] = useState('1')
 	const [UserImage, setUserImage] = useState('null')
 	const [fixedTag, setFixedTag] = useState<string[]>([]);
-	const [autoTag, setAutoTag] = useState<string[]>(['벚꽃','잔잔한','평화로운','봄바람']);
+	const [autoTag, setAutoTag] = useState<string[]>(['벚꽃', '잔잔한', '평화로운', '봄바람']);
 	const [startText, setStartText] = useState<string[]>([]);
 	const [text_array, setText_Array] = useState(["사랑", "이별", "서정적", "슬픔", "뭉게구름", "따뜻한", "새벽", "감성"])
 	const [inputText, setInputText] = useState('')
+	const [deletedTag,setDeletedTag] = useState<string[]>([])
 
 	const playlist = ['나만의 플레이리스트', '신나는 음악', '드라이브 할때 좋은 POP!', '추천 플레이리스트!']
 
@@ -86,12 +89,15 @@ const ColorDragDrop = (props: any) => {
 		autoTag.map((tag, index) => (
 			add_list.push({ "tagName": tag, "isFixed": 'UNFIXED' })
 		))
+		deletedTag.map((tag, index) => (
+			add_list.push({ "tagName": tag, "isFixed": 'DELETED' })
+		))
 		console.log(add_list)
 
 		axios
 			.post("http://3.35.154.3:5000/user/tag", {
 				"userId": userId,
-				"usertagList": [...fixedTag, ...autoTag]
+				"usertagList": add_list
 			}).catch(error => {
 				console.log(error.config)
 			});
@@ -116,24 +122,15 @@ const ColorDragDrop = (props: any) => {
 		setStartText(temp_list)
 	}
 
-	// useEffect(() => {
-
-	// 	const focus = props.navigation.addListener('focus', async () => {
-	// 	  setFixedTag(
-	// 	});
-	// 	return focus;
-	//   }, [props, props.navigation]
-	//   )
-
 	useEffect(() => {
 
-		axios.
-			get(`http://3.35.154.3:5000/tag`)
+		axios
+			.get(`http://3.35.154.3:5000/tag`)
 			.then((response) => {
 				setText_Array(response.data['tagList'])
 				console.log('Get Tag Sucess')
 			}).catch(error => {
-				console.log(`cant't get tag`)
+				console.log('Get tag error')
 			});
 
 		axios
@@ -152,19 +149,19 @@ const ColorDragDrop = (props: any) => {
 	const fadeAnim = useRef(new Animated.Value(0)).current
 	useEffect(() => {
 		Animated.timing(
-		  fadeAnim,
-		  {
-			toValue: 1,
-			useNativeDriver : true,
-			duration: 500,
-		  }
+			fadeAnim,
+			{
+				toValue: 1,
+				useNativeDriver: true,
+				duration: 500,
+			}
 		).start();
-	  }, [fadeAnim,fixedTag,autoTag])
+	}, [fadeAnim, fixedTag, autoTag])
 
 
 	return (
 		<CoreConsumer>
-			{({ value, SetValue }) => (
+			{({ value, SetValue}) => (
 				<DraxProvider>
 					<View style={[rStyles.centeredView, rStyles.back_black]}>
 						<DraxScrollView>
@@ -181,10 +178,12 @@ const ColorDragDrop = (props: any) => {
 
 							<View style={{}}>
 								<View style={[rStyles.mypagebox1, { height: 100 }]}>
-									<View style={{ flexDirection: 'row' }}>
-										<Image
-											style={rStyles.player}
-											source={{ uri: `data:image/jpeg;base64,${UserImage}` }} />
+									<View style={{ flexDirection: 'row' , alignItems:'center'}}>
+										<ImageBackground source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
+											style={rStyles.player} borderRadius={100} imageStyle={{ opacity: 0.5 }}>
+											<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/user_images/_${userId}.jpg` }}
+												style={[rStyles.player]} />												
+										</ImageBackground>										
 										<View>
 											<Text style={{ fontSize: 30, color: 'white', fontWeight: 'bold', marginVertical: 15, marginLeft: 7 }}>{userName}</Text>
 											<TouchableOpacity style={[rStyles.container, { backgroundColor: 'rgba(255,255,255,0.25)' }]}><Text style={{ fontSize: 17, color: 'white' }}>로그아웃</Text></TouchableOpacity>
@@ -216,7 +215,7 @@ const ColorDragDrop = (props: any) => {
 									edges={['top', 'left', 'right']}
 									style={{ flex: 1, alignItems: 'center' }}
 								>
-									<View style={inputText == '' ? { marginTop: 20 } : { marginTop: 20, height: 60}}>
+									<View style={inputText == '' ? { marginTop: 20 } : { marginTop: 20, height: 60 }}>
 										{Array.from(Array(1).keys()).map((n, index) =>
 											<View key={n} style={{ flexDirection: 'row', paddingHorizontal: 20, marginBottom: 10, alignItems: 'center', justifyContent: 'center' }}>
 												{startText.slice(n * 5, (n + 1) * 5).map((tag) => (
@@ -245,7 +244,7 @@ const ColorDragDrop = (props: any) => {
 															Array.from(Array(3).keys()).map((n, index) =>
 																<View key={index} style={{ flexDirection: 'row', paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center' }}>
 																	{fixedTag.slice(n * 4, (n + 1) * 4).map((tag, index) => (
-																		<Animated.View key={index} style={{opacity:fadeAnim}}>
+																		<Animated.View key={index} style={{ opacity: fadeAnim }}>
 																			<ColorBlock
 																				name={tag}
 																				boxId='2'
@@ -312,7 +311,7 @@ const ColorDragDrop = (props: any) => {
 																<View key={n} style={{ flexDirection: 'row', paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center' }}>
 
 																	{autoTag.slice(n * 4, (n + 1) * 4).map((tag, index) => (
-																		<Animated.View key={index} style={{opacity:fadeAnim}}>
+																		<Animated.View key={index} style={{ opacity: fadeAnim }}>
 																			<ColorBlock
 																				name={tag}
 																				boxId='3'
@@ -387,10 +386,12 @@ const ColorDragDrop = (props: any) => {
 												var fixCopy = fixedTag.filter(x => x != text)
 												setFixedTag([])
 												setTimeout(() => { setFixedTag(fixCopy) }, renderTime)
+												setDeletedTag([...deletedTag,text])
 											} else if (boxId == '3') {
 												var autoCopy = autoTag.filter(x => x != text)
 												setAutoTag([])
 												setTimeout(() => { setAutoTag(autoCopy) }, renderTime)
+												setDeletedTag([...deletedTag,text])
 											}
 
 											return DraxSnapbackTargetPreset.None;
