@@ -28,12 +28,14 @@ const style = StyleSheet.create({
         marginHorizontal: 3,
     },
     MusicBox: {
+        justifyContent:'center',
+        alignItems:'center',
         borderRadius:12,
-        padding: 7,
+        padding: 1,
         marginVertical: 1,
         margin: 15,
         width: 190,
-        height: 240,
+        height: 245,
         flexDirection: 'row',
     },
     MusicStyle: {
@@ -77,7 +79,8 @@ const style = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255, 0.25)'
     },
     centeredView: {
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        justifyContent:'center',
     },
     dragContainer: {
         flex: 1,

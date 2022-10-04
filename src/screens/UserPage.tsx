@@ -32,7 +32,7 @@ interface ColorBlockProps {
 	boxId: string;
 }
 
-const colorList: any = ['#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7']
+const colorList = ['#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7','#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7','#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7','#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7','#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7','#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7','#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7']
 const ColorBlock = ({ name, boxId }: ColorBlockProps) => (
 	<DraxView
 		style={[
@@ -45,7 +45,7 @@ const ColorBlock = ({ name, boxId }: ColorBlockProps) => (
 		hoverDraggingStyle={styles.hoverDragging}
 		dragPayload={{ text: name, boxId }}
 	>
-		<Text style={{ color: 'black', fontSize: 16 }}>{'#' + name}</Text>
+		<Text style={{ color: 'black', fontSize: 17 }}>{'#' + name}</Text>
 	</DraxView>
 );
 
@@ -71,7 +71,7 @@ const ColorDragDrop = (props: any) => {
 
 
 
-	const playlist = ['나만의 플레이리스트', '신나는 음악', '드라이브 할때 좋은 POP!', '추천 플레이리스트!']
+	const playlist = ['나만의 플레이리스트', '신나는 음악', '드라이브','드라이브 ']
 
 	const { route } = props;
 	const result = useContext(CoreContext);
@@ -330,7 +330,7 @@ const ColorDragDrop = (props: any) => {
 																	</View>
 																)
 															) : (
-																<Text style={styles.instruction}>
+																<Text style={[styles.instruction, { fontSize: 16 }]}>
 																	나의 태그
 																</Text>
 															)}
@@ -490,16 +490,18 @@ const ColorDragDrop = (props: any) => {
 										<View>
 											<Text style={{ fontSize: 25, color: 'black', fontWeight: 'bold', marginTop: 40, marginLeft: 30 }}>플레이리스트</Text>
 										</View>
-										<View>
-
-											{playlist.map((list,index) => (
-												<View style={{ flexDirection: 'row', backgroundColor:colorList[index+4] }} key={list}>
+										<View style={{ alignItems: 'center', justifyContent: 'center' }}>
+											{playlist.map((list, index) => (
+												<View style={{ padding: 9, flexDirection: 'row', height: 125, backgroundColor: colorList[index + 4], borderRadius: 12, width: '88%', marginVertical: 10,  }} key={list}>
 													<View>
-														<Image source={require('../images/playlisticon.jpg')} style={{ marginTop: 30, marginLeft: 35, width: 100, height: 100, borderRadius: 20 }} />
+														<Image source={require('../images/playlisticon.jpg')} style={{ height: '100%', aspectRatio: 1, borderRadius: 20 }} />
 													</View>
-													<View style={{ marginTop: 25, marginLeft: 20 }}>
-														<Text key={list} style={{ fontSize: 17, color: 'white', fontWeight: 'bold' }}>{list}</Text>
-														<TouchableOpacity><Text style={[rStyles.logoutbutton, { width: 90, height: 33 }]}> 재생하기</Text></TouchableOpacity>
+													<View style={{padding:10, width:'100%'}}>
+														<View style={{ marginLeft: 5 }}>
+															<Text style={{ fontSize: 20, color: '#454545', fontWeight: 'bold' }}>{list}</Text>
+															<Text style={{ fontSize: 15, color: '#454545', fontWeight: 'bold' }}>2022. 08. 17</Text>
+														</View>
+														<View style={{alignItems:'flex-end', width:'70%'}}><Icon name="play" color='#626262' size={40} /></View>
 													</View>
 												</View>
 											))}
