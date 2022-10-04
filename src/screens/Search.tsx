@@ -4,37 +4,31 @@ import { useCallback } from 'react';
 import rStyles from '../styles/styles'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const recent_search = ['저 별 - 헤이즈', '아이유', '밤 편지', '노래','Madeleine love', '이승철 서쪽 하늘','이선희','사랑한다는 흔한 말']
+const recent_search = ['멜로망스', '트와이스', '비도 오고 그래서']
 
 function Search() {
-  const color = 'white'
+  const color = 'black'
   return (
-    <View style={{ flex: 1, backgroundColor: 'black' }}>
-      <ScrollView>
-        <View style={{ flex: 1 }}>
-          <View style={{ height: 60, justifyContent: 'center' }}>
-            <View style={{ paddingRight: 255, flexDirection: 'row' }}>
-              <TouchableOpacity>
-                <View style={{}}><Image source={require('../images/magician.jpg')} style={rStyles.Logo} /></View>
-              </TouchableOpacity>
-              <View style={{ marginTop: 5 }}><Text style={{ fontSize: 20, fontWeight: 'bold', color:'white' }}>Music App</Text></View>
-            </View>
+    <View style={{ backgroundColor: 'white', height: '100%' }}>
+      <ScrollView showsVerticalScrollIndicator={false} style={rStyles.scrollView} persistentScrollbar={true}>
+        <View style={{ flexDirection: 'row', paddingLeft: 30, paddingTop: 40 }}>
+          <View style={{ width: 320, height: 25 }}>
+            <Text style={{ fontSize: 25, fontWeight: 'bold' }}>검색</Text>
           </View>
         </View>
-        <View style={{ flex: 1, flexDirection: 'row', justifyContent:'center',alignItems :'center', height:50, marginTop:20}}>
-        <Icon name="arrow-left" color={color} size={40} />
-          <TextInput style={{ backgroundColor: 'rgba(255,255,255,0.25)', height: 45, width: '70%',marginHorizontal:12, color: 'white' , fontSize:20, paddingHorizontal:15,paddingVertical:0, borderRadius:20}}>노래,앨범,아티스트 검색</TextInput>
-          <Icon name="microphone" color={color} size={35} />
+        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: 50, marginTop: 20, flex: 1 }}>
+          <TextInput placeholder='음악 또는 아티스트 검색' placeholderTextColor='gray' style={{ flex: 1, backgroundColor: '#ECECEC', height: 45, width: '85%', marginHorizontal: 12, color: 'black', fontSize: 17, paddingHorizontal: 15, paddingVertical: 0, borderRadius: 15 }} />
+          <View><Icon name="printer-search" color='black' size={20} style={{ marginRight: 15 }} /></View>
         </View>
-        <View style={{ flex: 10 , marginTop:15}}>
+        <View style={{ marginTop: 15 }}>
           <View>
             {recent_search.map((log) => (
-              <View key={log} style={[rStyles.container,{flexDirection:'row', marginVertical:1, marginLeft:20,backgroundColor: 'rgba(0,0,0,0)', alignItems:'center'}]}>
-                <Icon name="update" color={'gray'} size={30} style={{marginRight:15}}/>
-                <Text style={{ fontSize: 20, width:'75%' , color:'white'}}>
+              <View key={log} style={[{ flexDirection: 'row', marginVertical: 5, marginLeft: 40, alignItems: 'center' }]}>
+                <Text style={{ fontSize: 20, width: '75%', color: 'black' }}>
                   {log}
                 </Text>
-                <Image source={require('../images/diagonal-arrow.png')} style={{width:22, height:22, marginRight:12}}></Image>
+                <Text>- - - -    </Text>
+                <Icon name="close" color={'#FF6666'} size={15} style={{ marginRight: 15 }} />
               </View>
             ))}
           </View>

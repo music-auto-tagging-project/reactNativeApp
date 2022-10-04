@@ -9,18 +9,10 @@ const style = StyleSheet.create({
     }
     ,
     scrollView: {
-        backgroundColor: 'black',
+        backgroundColor: 'white',
     },
     text: {
         fontSize: 22,
-    },
-    container: {
-        backgroundColor: 'rgba(255, 255, 255, 0.17)',
-        paddingVertical: 8,
-        paddingHorizontal: 20,
-        marginHorizontal: 5,
-        marginVertical: 0,
-        borderRadius: 20,
     },
     tagBox: {
         paddingVertical: 5,
@@ -31,21 +23,23 @@ const style = StyleSheet.create({
         backgroundColor: 'rgba(0.1, 0.1, 0.1, 0.07)',
     },
     MusicContainer: {
-        paddingVertical: 5,
+        paddingVertical: 10,
         paddingHorizontal: 25,
         marginHorizontal: 3,
     },
     MusicBox: {
-        paddingVertical: 3,
-        paddingHorizontal: 10,
+        borderRadius:12,
+        padding: 7,
         marginVertical: 1,
-        width: 350,
-        height: 80,
+        margin: 15,
+        width: 190,
+        height: 240,
         flexDirection: 'row',
     },
     MusicStyle: {
-        width: 60,
-        height: 60,
+        width: 170,
+        height: 170,
+        borderRadius:12
     },
     Logo: {
         borderRadius: 100,
@@ -83,10 +77,7 @@ const style = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255, 0.25)'
     },
     centeredView: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: 'rgb(220,220,220)'
+        backgroundColor: 'white'
     },
     dragContainer: {
         flex: 1,

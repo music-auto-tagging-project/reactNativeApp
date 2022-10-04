@@ -17,11 +17,11 @@ const { Navigator, Screen } = createBottomTabNavigator();
 const MyTheme : any = {
 	dark: true,
 	colors: {
-		primary: 'white',
-		card: 'rgb(0,0,0)',
-		text: 'white',
+		primary: 'black',
+		card: 'rgb(255,255,255)',
+		text: 'black',
 		border: 'rgb(199, 199, 204)',
-		notification: 'white',
+		notification: 'black',
 	},
 };
 
@@ -30,7 +30,7 @@ const App = () => {
 	console.log(result.tag);
 	return (
 		<>
-				<StatusBar barStyle="dark-content" />
+				<StatusBar barStyle="light-content" />
 				<NavigationContainer theme={MyTheme}>
 					<Navigator>
 						<Screen
