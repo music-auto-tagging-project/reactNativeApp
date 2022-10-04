@@ -1,4 +1,4 @@
--setting code package
+- setting code package
  git init
  git remote add origin https://github.com/music-auto-tagging-project/reactNativeApp.git
  git checkout origin/Dev
@@ -11,7 +11,7 @@
  install android studio(2021.3.1)
  create virtual emulator
   
--setting java version and path  
+- setting java version and path  
  choco install -y nodejs.install jdk8 (admin cmd)
  add ANDROID_HOME C:\Users\Sangjae\AppData\Local\Android\Sdk
  add Path
