@@ -18,13 +18,15 @@ import {
 
 import * as React from 'react';
 import { useState, useEffect, useRef, Component, useContext, useCallback } from 'react';
-import { TextInput, Image, ScrollView, Modal, Animated, ImageBackground } from 'react-native';
+import { TextInput, Image, ScrollView, Modal, Animated, ImageBackground, Pressable } from 'react-native';
 import rStyles from '../styles/styles'
 import axios from 'axios';
 import * as Hangul from 'hangul-js';
 import { CoreContext, CoreConsumer } from '../context/CoreManagement';
 import tag_data from '../etc/tag'
 import { add, color } from 'react-native-reanimated';
+import style from '../styles/styles';
+import { TouchableHighlight } from 'react-native-gesture-handler';
 // import Animated from 'react-native-reanimated';
 
 interface ColorBlockProps {
@@ -32,7 +34,7 @@ interface ColorBlockProps {
 	boxId: string;
 }
 
-const colorList = ['#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7','#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7','#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7','#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7','#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7','#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7','#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7']
+const colorList = ['#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7']
 const ColorBlock = ({ name, boxId }: ColorBlockProps) => (
 	<DraxView
 		style={[
@@ -68,13 +70,25 @@ const ColorDragDrop = (props: any) => {
 	const [loginStatus, setLoginStatus] = useState(true)
 	const [accountModal, setAccountModal] = useState(false)
 	const [tagSearchOn, setTagSearchOn] = useState(true)
+	const [tagStateModal, setTagStateModal] = useState(false)
+	const [autoTagStateModal, setAutoTagStateModal] = useState(false)
+	const [tagStateModalTag, setTagStateModalTag] = useState(['Tag'])
 
 
 
-	const playlist = ['나만의 플레이리스트', '신나는 음악', '드라이브','드라이브 ']
+	const playlist = ['나만의 플레이리스트', '신나는 음악', '드라이브', '드라이브 ']
 
 	const { route } = props;
 	const result = useContext(CoreContext);
+
+	const changeTagState = (tag, e) => {
+		setTagStateModal(!tagStateModal);
+		setTagStateModalTag(tag)
+	}
+	const changeAutoTagState = (tag, e) => {
+		setAutoTagStateModal(!autoTagStateModal);
+		setTagStateModalTag(tag)
+	}
 
 	function reRendering() {
 		var autoCopy = [...autoTag]
@@ -103,6 +117,9 @@ const ColorDragDrop = (props: any) => {
 			"userId": userId,
 			"userTagList": add_list
 		})
+		console.log('fixed : ' + fixedTag)
+		console.log('auto : ' + autoTag)
+		console.log('delete : ' + deletedTag)
 	}
 
 	function find_nm(nm: any) {
@@ -166,63 +183,103 @@ const ColorDragDrop = (props: any) => {
 	return (
 		<CoreConsumer>
 			{({ value, SetValue }) => (
-				<DraxProvider>
+				<View>
+					{/* 태그 설정 화면 fixed */}
 					<Modal
-						animationType="slide"
+						animationType='none'
 						transparent={true}
-						visible={accountModal}
+						visible={tagStateModal}
 						onRequestClose={() => {
-							setAccountModal(!accountModal);
+							setTagStateModal(!tagStateModal);
 						}}
 					>
-						<View style={[rStyles.centeredView, { backgroundColor: 'black', justifyContent: "flex-start" }]}>
-							<View style={{ height: 60, justifyContent: 'center' }}>
-								<View style={{ paddingRight: 270, flexDirection: 'row' }}>
-									<TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
-										<View style={{}}><Image source={require('../images/magician.jpg')} style={rStyles.Logo} /></View>
-									</TouchableOpacity>
-									<View style={{ marginTop: 5 }}><Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>Music App</Text></View>
-								</View>
-							</View>
-							<View style={{ paddingTop: 150, justifyContent: 'center', alignItems: 'center' }}>
-								<View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingRight: 20 }}><Text style={{ color: "white", fontSize: 20 }}>ID        </Text><TextInput style={{ borderRadius: 0, margin: 10, height: 40, width: 250, backgroundColor: "rgba(230,230,230,0.8)" }}></TextInput></View>
-								<View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingRight: 20 }}><Text style={{ color: "white", fontSize: 20 }}>PW      </Text><TextInput style={{ borderRadius: 0, margin: 10, height: 40, width: 250, backgroundColor: "rgba(230,230,230,0.8)" }}></TextInput></View>
-								<View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingRight: 20 }}><Text style={{ color: "white", fontSize: 20 }}>NAME </Text><TextInput style={{ borderRadius: 0, margin: 10, height: 40, width: 250, backgroundColor: "rgba(230,230,230,0.8)" }}></TextInput></View>
-								<View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingRight: 20 }}><Text style={{ color: "white", fontSize: 20 }}>BIRTH </Text><TextInput style={{ borderRadius: 0, margin: 10, height: 40, width: 250, backgroundColor: "rgba(230,230,230,0.8)" }}></TextInput></View>
-								<TouchableOpacity onPress={() => { setLoginStatus(false) }}>
-									<View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 20, width: 100, height: 50, margin: 10, backgroundColor: "rgba(200,200,200,0.4)" }}>
-										<Text style={{ color: "white", fontSize: 20 }}>회원가입</Text>
+						<View style={{ height: '100%', width: '100%', backgroundColor: 'rgba(50,50,50,0.3)', justifyContent: 'center', alignItems: 'center' }}>
+							<View style={{ width: 300, height: 200, position: 'absolute', backgroundColor: 'white', borderRadius: 15 }}>
+								<View style={{ paddingRight: 10, marginTop: 30 }}>
+									<View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontSize: 20, fontWeight: 'bold' }}>{tagStateModalTag}</Text></View>
+									<View style={{ position: 'absolute', width: '100%', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+										<Icon name="close" color={colorList[0]} size={30} onPress={() => { setTagStateModal(!tagStateModal) }}></Icon>
 									</View>
-								</TouchableOpacity>
+								</View>
+								<View style={{ width: '100%', marginVertical: 15 }}>
+									<TouchableOpacity onPress={() => {
+										var fixedCopy = fixedTag.filter(x => x != tagStateModalTag)
+										setTimeout(() => { setFixedTag(fixedCopy) }, renderTime)
+										setAutoTag([...autoTag, tagStateModalTag])
+										setTagStateModal(!tagStateModal)
+									}} style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginVertical: 15 }}><Text style={{ fontSize: 20 }}>고정 해제</Text>
+									</TouchableOpacity>
+									<TouchableOpacity onPress={() => {
+										var fixedCopy = fixedTag.filter(x => x != tagStateModalTag)
+										setTimeout(() => { setFixedTag(fixedCopy) }, renderTime)
+										setDeletedTag([...deletedTag, tagStateModalTag])
+										setTagStateModal(!tagStateModal)
+									}} style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+										<Text style={{ fontSize: 20 }}>한 동안 보지 않기</Text></TouchableOpacity>
+								</View>
 							</View>
 						</View>
 					</Modal>
-					{/* 유저 페이지 */}
+					{/* 태그 설정 화면 auto */}
+					<Modal
+						animationType='none'
+						transparent={true}
+						visible={autoTagStateModal}
+						onRequestClose={() => {
+							setAutoTagStateModal(!autoTagStateModal);
+						}}
+					>
+						<View style={{ height: '100%', width: '100%', backgroundColor: 'rgba(50,50,50,0.3)', justifyContent: 'center', alignItems: 'center' }}>
+							<View style={{ width: 300, height: 200, position: 'absolute', backgroundColor: 'white', borderRadius: 15 }}>
+								<View style={{ paddingRight: 10, marginTop: 30 }}>
+									<View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontSize: 20, fontWeight: 'bold' }}>{tagStateModalTag}</Text></View>
+									<View style={{ position: 'absolute', width: '100%', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+										<Icon name="close" color={colorList[0]} size={30} onPress={() => { setAutoTagStateModal(!autoTagStateModal) }}></Icon>
+									</View>
+								</View>
+								<View style={{ width: '100%', marginVertical: 15 }}>
+									<TouchableOpacity onPress={() => {
+										var autoCopy = autoTag.filter(x => x != tagStateModalTag)
+										setTimeout(() => { setAutoTag(autoCopy) }, renderTime)
+										setFixedTag([...fixedTag, tagStateModalTag])
+										setAutoTagStateModal(!autoTagStateModal)
+									}} style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginVertical: 15 }}><Text style={{ fontSize: 20 }}>나의 태그로 이동</Text>
+									</TouchableOpacity>
+									<TouchableOpacity onPress={() => {
+										var autoCopy = autoTag.filter(x => x != tagStateModalTag)
+										setTimeout(() => { setAutoTag(autoCopy) }, renderTime)
+										setDeletedTag([...deletedTag, tagStateModalTag])
+										setAutoTagStateModal(!autoTagStateModal)
+									}} style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+										<Text style={{ fontSize: 20 }}>한 동안 보지 않기</Text></TouchableOpacity>
+								</View>
+							</View>
+						</View>
+					</Modal>
+					{/* 로그인 화면 */}
+
 					{loginStatus ?
 
-						<View style={[rStyles.centeredView, { justifyContent: "flex-start", }]}>
+						<View style={[rStyles.centeredView, { height: '100%', justifyContent: "flex-start", }]}>
 
 
-							<View style={{ paddingTop: 150, justifyContent: 'center', alignItems: 'center' }}>
-								<View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingRight: 20 }}><Text style={{ color: "white", fontSize: 20 }}>ID   </Text><TextInput style={{ borderRadius: 0, margin: 10, height: 40, width: 250, backgroundColor: "rgba(230,230,230,0.8)" }}></TextInput></View>
-								<View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingRight: 20 }}><Text style={{ color: "white", fontSize: 20 }}>PW </Text><TextInput style={{ borderRadius: 0, margin: 10, height: 40, width: 250, backgroundColor: "rgba(230,230,230,0.8)" }}></TextInput></View>
-
-								<View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 30 }}>
-									<TouchableOpacity onPress={() => { setLoginStatus(false) }}>
-										<View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 20, width: 100, height: 50, margin: 10, backgroundColor: "rgba(200,200,200,0.4)" }}>
-											<Text style={{ color: "white", fontSize: 20 }}>로그인</Text>
-										</View>
-									</TouchableOpacity>
-									<TouchableOpacity onPress={() => setAccountModal(true)}>
-										<View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 20, width: 100, height: 50, margin: 10, backgroundColor: "rgba(200,200,200,0.4)" }}>
-											<Text style={{ color: "white", fontSize: 20 }}>회원가입</Text>
-										</View>
-									</TouchableOpacity>
+							<View style={{ justifyContent: 'center', alignItems: 'center' }}>
+								<View style={{ height: 150 }}></View>
+								<View style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+									<TextInput style={{ marginBottom: 25, paddingLeft: 15, width: '77%', backgroundColor: '#F7F8F9', height: 55, borderColor: '#E0E1E2', borderWidth: 1, borderRadius: 10, fontSize: 18 }} placeholder='아이디' placeholderTextColor='#CECED1'></TextInput>
+									<TextInput secureTextEntry={true} style={{ paddingLeft: 15, width: '77%', backgroundColor: '#F7F8F9', height: 55, borderColor: '#E0E1E2', borderWidth: 1, borderRadius: 10, fontSize: 18 }} placeholder='비밀번호' placeholderTextColor='#CECED1'></TextInput>
+									<View style={{ alignItems: 'flex-end', width: '100%', marginTop: 70, marginBottom: 40, paddingRight: 50 }}><Text style={{ color: '#6B8BDE' }}>비밀번호 재설정</Text></View>
 								</View>
-								<View style={{ marginTop: 40 }}>
-									<TouchableOpacity><View style={{ backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', width: 200, height: 50, margin: 10 }}><Text style={{ fontSize: 20 }}>Google</Text></View></TouchableOpacity>
-									<TouchableOpacity><View style={{ backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', width: 200, height: 50, margin: 10 }}><Text style={{ fontSize: 20 }}>Facebook</Text></View></TouchableOpacity>
-									<TouchableOpacity><View style={{ backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', width: 200, height: 50, margin: 10 }}><Text style={{ fontSize: 20 }}>Naver</Text></View></TouchableOpacity>
+								<View style={{ width: '100%', alignItems: 'center' }}>
+									<TouchableOpacity onPress={() => { setLoginStatus(false) }} style={{ width: '77%', backgroundColor: '#F1BFBF', height: 55, borderRadius: 10, marginBottom: 8, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 18, color: 'white', fontWeight: 'bold' }}>로그인</Text></TouchableOpacity>
+									<TouchableOpacity style={{ flexDirection: 'row', width: '77%', borderColor: '#E8E9EA', borderWidth: 2, height: 55, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
+										<Image source={require('../images/google-logo-thumbnail.png')} style={{ height: 35, width: 35, marginRight: 5 }}></Image>
+										<Text style={{ fontSize: 18, color: 'black', fontWeight: 'bold' }}>구글 계정으로 로그인</Text>
+									</TouchableOpacity>
+									<View style={{ flexDirection: 'row', marginTop: 35 }}>
+										<Text>아직 계정이 없으신가요?</Text>
+										<TouchableOpacity style={{ marginLeft: 10 }}><Text style={{ fontWeight: 'bold' }}>회원가입</Text></TouchableOpacity>
+									</View>
 								</View>
 
 							</View>
@@ -235,7 +292,8 @@ const ColorDragDrop = (props: any) => {
 
 						:
 						<View style={[rStyles.centeredView]}>
-							<DraxScrollView>
+							{/* 유저 페이지 */}
+							<ScrollView>
 
 								<View style={{}}>
 									<View style={{ flexDirection: 'row', paddingLeft: 30, paddingTop: 40, height: 100 }}>
@@ -258,231 +316,81 @@ const ColorDragDrop = (props: any) => {
 											<Text style={{ fontSize: 17, color: 'black', width: 295 }}>태그를 추가해 보세요.</Text>
 											<TouchableOpacity onPress={() => {
 												setTagSearchOn(!tagSearchOn)
-												{ SetValue([...fixedTag, ...autoTag]); }
 												onClickSendTag();
-												reRendering()
+												SetValue([...fixedTag,...autoTag])
 											}} style={{ width: 85, height: 35, backgroundColor: colorList[1], borderRadius: 8, justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontSize: 18 }}>{tagSearchOn ? '수정' : '저장'}</Text></TouchableOpacity>
 										</View>
 
-										{tagSearchOn ? <View></View> :
+										{tagSearchOn ? <View style={{ height: 10 }}></View> : <View>
 											<TouchableOpacity style={{ alignItems: 'center', marginTop: 20, }}>
 												<View style={{ justifyContent: 'center', width: 370, backgroundColor: colorList[1], height: 45, borderRadius: 10, paddingLeft: 20 }}>
 													<TextInput onChangeText={(nm) => {
 														find_nm(nm);
-														if (inputText == '') {
-															reRendering()
-														}
-														if (nm == '' && inputText !== '') {
-															reRendering()
-														}
 														setInputText(nm)
 													}} style={{ padding: 0, fontSize: 17 }} placeholder="태그 검색" placeholderTextColor='#A1A1A1'></TextInput>
 												</View>
-											</TouchableOpacity>}
+											</TouchableOpacity>
+											<View style={inputText == '' ? { marginTop: 10, height: 0 } : { marginTop: 10, height: 30 }}>
+												{Array.from(Array(1).keys()).map((n, index) =>
+													<ScrollView horizontal={true} key={n} style={{ flexDirection: 'row', paddingHorizontal: 20 }}>
+														{startText.map((tag) => (
+															<TouchableOpacity key={tag} style={{ marginHorizontal: 5, padding: 0.5 }} onPress={() => { setFixedTag([...fixedTag, tag]) }}>
+																<Text style={{ fontSize: 17 }}>{'#' + tag}</Text>
+															</TouchableOpacity>
+														))}
+													</ScrollView>
+												)}
+											</View>
+										</View>}
 
 									</View>
 
 
-									<SafeAreaView
-										edges={['top', 'left', 'right']}
-										style={{ flex: 1, alignItems: 'center' }}
-									>
-										<View style={inputText == '' ? { marginTop: 5 } : { marginTop: 5, height: 30 }}>
-											{Array.from(Array(1).keys()).map((n, index) =>
-												<View key={n} style={{ flexDirection: 'row', paddingHorizontal: 20 }}>
-													{startText.slice(n * 5, (n + 1) * 5).map((tag) => (
-														<View key={tag}>
-															<ColorBlock
-																name={tag}
-																boxId='1'
-															/>
+
+
+									<View style={{ justifyContent: 'center', alignItems: 'center' }}>
+										<View style={{ width: '100%' }}>
+											<View style={{ marginLeft: 30, marginVertical: 15 }}>
+												<Text style={{ fontSize: 17 }}>나의 태그</Text>
+											</View>
+										</View>
+										<View style={{ borderRadius: 10, width: 370, paddingVertical: 11, paddingHorizontal: 20, backgroundColor: colorList[2] }}>
+											{fixedTag.length && fixedTag.length > 0 ?
+												(
+													Array.from(Array(Math.ceil(fixedTag.length / 5)).keys()).map((n, index) =>
+														<View key={index} style={{ flexDirection: 'row' }}>
+															{fixedTag.slice(n * 5, (n + 1) * 5).map((tag, index) => (
+																<TouchableOpacity key={tag} style={{ marginHorizontal: 5, marginVertical: 5 }} onPress={(e) => { changeTagState(tag, e) }}>
+																	<Text style={{ fontSize: 17 }}>{'#' + tag}</Text>
+																</TouchableOpacity>
+															))}
 														</View>
-													))}
-												</View>
-											)}
+													)
+												)
+												: <Text style={{ fontSize: 17, fontStyle: 'italic' }}>추천 태그</Text>
+											}
 										</View>
 										<View style={{ width: '100%' }}>
 											<View style={{ marginLeft: 30, marginVertical: 15 }}>
-												<Text style={{ fontSize: 16 }}>나의 태그</Text>
+												<Text style={{ fontSize: 17 }}>추천 태그</Text>
 											</View>
 										</View>
-										<>
-											<DraxView
-												style={[
-													styles.receivingZone,
-													{ width: 370, backgroundColor: colorList[2] }
-												]}
-												receivingStyle={styles.receiving}
-												renderContent={({ viewState }) => {
-													return (
-														<>
-															{(fixedTag.length) && (fixedTag.length > 0) ? (
-																Array.from(Array(3).keys()).map((n, index) =>
-																	<View key={index} style={{ flexDirection: 'row', paddingHorizontal: 15, alignItems: 'center', paddingTop: 8 }}>
-																		{fixedTag.slice(n * 4, (n + 1) * 4).map((tag, index) => (
-																			<Animated.View key={index} style={{ opacity: fadeAnim }}>
-																				<ColorBlock
-																					name={tag}
-																					boxId='2'
-																				/>
-																			</Animated.View>
-																		))}
-																	</View>
-																)
-															) : (
-																<Text style={[styles.instruction, { fontSize: 16 }]}>
-																	나의 태그
-																</Text>
-															)}
-														</>
-													);
-												}}
-												onReceiveDragDrop={(event) => {
-													const { text, boxId } = event.dragged.payload
-														?? { text: '?' };
-													if (boxId == '1') {
-														if (!fixedTag.includes(text) && !autoTag.includes(text)) {
-															var fixedCopy = [...fixedTag, text]
-															setFixedTag([])
-															setTimeout(() => { setFixedTag(fixedCopy); }, renderTime)
-															var startCopy = startText.filter(x => x != text)
-															setStartText([])
-															setTimeout(() => { setStartText(startCopy) }, renderTime)
-														}
-
-													} else if (boxId == '3') {
-														var autoCopy = autoTag.filter(x => x != text)
-														setAutoTag([])
-														setTimeout(() => { setAutoTag(autoCopy); }, renderTime)
-														var fixedCopy = [...fixedTag, text]
-														setFixedTag([])
-														setTimeout(() => { setFixedTag(fixedCopy) }, renderTime)
-													}
-
-													return DraxSnapbackTargetPreset.None;
-												}}
-											/>
-										</>
-										<View style={{ width: '100%' }}>
-											<View style={{ marginLeft: 30, marginVertical: 15 }}>
-												<Text style={{ fontSize: 16 }}>추천 태그</Text>
-											</View>
-										</View>
-										<>
-											<DraxView
-												style={styles.stagingLayout}
-												renderContent={({ viewState }) => {
-													const receivingDrag = viewState?.receivingDrag;
-													const active = viewState?.dragStatus !== DraxViewDragStatus.Inactive;
-													const combinedStyles: ViewStyle[] = [
-														styles.centeredContent,
-														styles.stagingZone,
-														{ width: 370 },
-														{ backgroundColor: colorList[3] }
-													];
-													if (active) {
-														combinedStyles.push({ opacity: 0.2 });
-													} else if (receivingDrag) {
-														combinedStyles.push(styles.receiving);
-													}
-													return (
-														<View style={combinedStyles}>
-															{(autoTag.length > 0) ? (
-																Array.from(Array(3).keys()).map((n, index) =>
-																	<View key={n} style={{ flexDirection: 'row', paddingHorizontal: 15, alignItems: 'center', paddingTop: 8 }}>
-
-																		{autoTag.slice(n * 4, (n + 1) * 4).map((tag, index) => (
-																			<Animated.View key={index} style={{ opacity: fadeAnim }}>
-																				<ColorBlock
-																					name={tag}
-																					boxId='3'
-																				/>
-																			</Animated.View>
-																		))}
-																	</View>
-																)
-															) : (
-																<Text style={styles.instruction}>
-																	Drag Tag
-																</Text>
-															)}
-
+										<View style={{ borderRadius: 10, width: 370, paddingVertical: 11, paddingHorizontal: 20, backgroundColor: colorList[3] }}>
+											{autoTag.length && autoTag.length > 0 ?
+												(
+													Array.from(Array(Math.ceil(autoTag.length / 5)).keys()).map((n, index) =>
+														<View key={index} style={{ flexDirection: 'row' }}>
+															{autoTag.slice(n * 5, (n + 1) * 5).map((tag, index) => (
+																<TouchableOpacity key={tag} style={{ marginHorizontal: 5, marginVertical: 5 }} onPress={(e) => { changeAutoTagState(tag, e) }}>
+																	<Text style={{ fontSize: 17 }}>{'#' + tag}</Text>
+																</TouchableOpacity>
+															))}
 														</View>
-													);
-												}}
-												onReceiveDragDrop={(event) => {
-													const { text, boxId } = event.dragged.payload
-														?? { text: '?' };
-													if (boxId == '1') {
-														if (!fixedTag.includes(text) && !autoTag.includes(text)) {
-															var autoCopy = [...autoTag, text]
-															setAutoTag([])
-															setTimeout(() => { setAutoTag(autoCopy); }, renderTime)
-															var startCopy = startText.filter(x => x != text)
-															setStartText([])
-															setTimeout(() => { setStartText(startCopy) }, renderTime)
-														} else {
-															Alert.alert('해당 태그가 존재합니다.')
-														}
-													} else if (boxId == '2') {
-														var autoCopy = [...autoTag, text]
-														setAutoTag([])
-														setTimeout(() => { setAutoTag(autoCopy); }, renderTime)
-														var fixedCopy = fixedTag.filter(x => x != text)
-														setFixedTag([])
-														setTimeout(() => { setFixedTag(fixedCopy) }, renderTime)
-													}
-
-													return DraxSnapbackTargetPreset.None;
-												}}
-											/>
-										</>
-									</SafeAreaView>
-									<View style={{ flexDirection: 'row', paddingRight: 30, marginTop: 5 }}>
-										<DraxView
-											style={styles.stagingLayout}
-											renderContent={({ viewState }) => {
-												const receivingDrag = viewState?.receivingDrag;
-												const active = viewState?.dragStatus !== DraxViewDragStatus.Inactive;
-												const combinedStyles: ViewStyle[] = [
-													styles.deleteZone,
-													{ marginLeft: 20, width: 370 },
-													{ backgroundColor: 'white' }
-												];
-												if (active) {
-													combinedStyles.push({ opacity: 0.2 });
-												} else if (receivingDrag) {
-													combinedStyles.push(styles.receiving);
-												}
-												return (
-													<View style={[combinedStyles, { alignContent: 'flex-start' }]}>
-														<View style={{ flexDirection: 'row' }}><Text style={{ color: 'black' }}>Del Here </Text><Icon name="trash-can" color={'black'} size={20} /></View>
-													</View>
-												);
-											}}
-											onReceiveDragDrop={(event) => {
-												const { text, boxId } = event.dragged.payload
-													?? { text: '?' };
-												if (boxId == '2') {
-													var fixCopy = fixedTag.filter(x => x != text)
-													setFixedTag([])
-													setTimeout(() => { setFixedTag(fixCopy) }, renderTime)
-													setDeletedTag([...deletedTag, text])
-												} else if (boxId == '3') {
-													var autoCopy = autoTag.filter(x => x != text)
-													setAutoTag([])
-													setTimeout(() => { setAutoTag(autoCopy) }, renderTime)
-													setDeletedTag([...deletedTag, text])
-												}
-
-												return DraxSnapbackTargetPreset.None;
-											}}
-											onDragDrop={() => {
-												setAutoTag([]);
-											}}
-											longPressDelay={200}
-										/>
-
+													)
+												)
+												: <Text style={{ fontSize: 17, fontStyle: 'italic' }}>추천 태그</Text>
+											}
+										</View>
 									</View>
 
 
@@ -492,111 +400,28 @@ const ColorDragDrop = (props: any) => {
 										</View>
 										<View style={{ alignItems: 'center', justifyContent: 'center' }}>
 											{playlist.map((list, index) => (
-												<View style={{ padding: 9, flexDirection: 'row', height: 125, backgroundColor: colorList[index + 4], borderRadius: 12, width: '88%', marginVertical: 10,  }} key={list}>
+												<View style={{ padding: 9, flexDirection: 'row', height: 125, backgroundColor: colorList[index + 4], borderRadius: 12, width: '88%', marginVertical: 10, }} key={list}>
 													<View>
 														<Image source={require('../images/playlisticon.jpg')} style={{ height: '100%', aspectRatio: 1, borderRadius: 20 }} />
 													</View>
-													<View style={{padding:10, width:'100%'}}>
+													<View style={{ padding: 10, width: '100%' }}>
 														<View style={{ marginLeft: 5 }}>
 															<Text style={{ fontSize: 20, color: '#454545', fontWeight: 'bold' }}>{list}</Text>
 															<Text style={{ fontSize: 15, color: '#454545', fontWeight: 'bold' }}>2022. 08. 17</Text>
 														</View>
-														<View style={{alignItems:'flex-end', width:'70%'}}><Icon name="play" color='#626262' size={40} /></View>
+														<View style={{ alignItems: 'flex-end', width: '70%' }}><Icon name="play" color='#626262' size={40} /></View>
 													</View>
 												</View>
 											))}
 										</View>
 									</View>
 								</View>
-							</DraxScrollView>
+							</ScrollView>
 						</View>}
-				</DraxProvider>
+				</View >
 			)}
-		</CoreConsumer>
+		</CoreConsumer >
 	);
 };
-
-const styles = StyleSheet.create({
-	centeredContent: {
-	},
-	receivingZone: {
-		borderRadius: 10,
-		margin: 8,
-		height: 50,
-		borderColor: 'white',
-		borderWidth: 1
-	},
-	overlay: {
-		...StyleSheet.absoluteFillObject,
-		justifyContent: 'flex-end',
-		alignItems: 'flex-end',
-	},
-	trashButton: {
-		width: 30,
-		height: 30,
-		backgroundColor: '#999999',
-		borderRadius: 15,
-		margin: 10,
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	receiving: {
-		borderColor: 'red',
-	},
-	incomingText: {
-		marginTop: 10,
-		fontSize: 24,
-	},
-	received: {
-		marginTop: 10,
-		fontSize: 18,
-	},
-	instruction: {
-		marginLeft: 15,
-		marginTop: 15,
-		fontSize: 12,
-		fontStyle: 'italic',
-	},
-	palette: {
-		justifyContent: 'center',
-		flexDirection: 'row',
-		flexWrap: 'wrap',
-	},
-	paletteRow: {
-		flexDirection: 'row',
-		justifyContent: 'space-evenly',
-		marginVertical: 8,
-	},
-	colorBlock: {
-		height: 20,
-		borderRadius: 10,
-		marginHorizontal: 5,
-		marginVertical: 3
-	},
-	dragging: {
-		opacity: 0.2,
-	},
-	hoverDragging: {
-		borderColor: 'magenta',
-		borderWidth: 0,
-	},
-	stagingLayout: {
-		flex: 3,
-		margin: 8,
-	},
-	stagingZone: {
-		borderRadius: 10,
-		height: 120,
-	},
-	deleteZone: {
-		height: 50,
-		borderColor: 'white',
-		borderWidth: 1,
-		borderRadius: 10
-	},
-	stagedCount: {
-		fontSize: 18,
-	},
-});
 
 export default ColorDragDrop;
