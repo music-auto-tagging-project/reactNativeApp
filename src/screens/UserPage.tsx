@@ -323,7 +323,7 @@ const ColorDragDrop = (props: any) => {
 
 										{tagSearchOn ? <View style={{ height: 10 }}></View> : <View>
 											<TouchableOpacity style={{ alignItems: 'center', marginTop: 20, }}>
-												<View style={{ justifyContent: 'center', width: 370, backgroundColor: colorList[1], height: 45, borderRadius: 10, paddingLeft: 20 }}>
+												<View style={{ justifyContent: 'center', width: 370, backgroundColor: colorList[1], height: 50, borderRadius: 10, paddingLeft: 20 }}>
 													<TextInput onChangeText={(nm) => {
 														find_nm(nm);
 														setInputText(nm)
@@ -367,7 +367,7 @@ const ColorDragDrop = (props: any) => {
 														</View>
 													)
 												)
-												: <Text style={{ fontSize: 17, fontStyle: 'italic' }}>추천 태그</Text>
+												: <Text style={{ fontSize: 17, fontStyle: 'italic' ,marginVertical: 5}}>추천 태그</Text>
 											}
 										</View>
 										<View style={{ width: '100%' }}>
@@ -388,7 +388,7 @@ const ColorDragDrop = (props: any) => {
 														</View>
 													)
 												)
-												: <Text style={{ fontSize: 17, fontStyle: 'italic' }}>추천 태그</Text>
+												: <Text style={{ fontSize: 17, fontStyle: 'italic', marginVertical: 5 }}>추천 태그</Text>
 											}
 										</View>
 									</View>
