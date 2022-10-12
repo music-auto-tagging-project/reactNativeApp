@@ -354,7 +354,7 @@ const ReorderableList = (props) => {
                             <View>
                               <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
                                 style={{ width: 165, height: 165, marginRight: 0, opacity: 0.2 }} borderRadius={12} />
-                              <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${1442 + m + 15}.jpg` }}
+                              <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${m + 15}.jpg` }}
                                 style={{ width: 165, height: 165, borderColor: 'white', borderWidth: 3, borderRadius: 12, position: 'absolute' }} />
                             </View>
                             <View style={{ marginTop: 7, flexDirection: 'row', marginLeft: 10 }}>
