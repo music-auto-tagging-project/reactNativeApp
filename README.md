@@ -43,3 +43,4 @@
 
 
 * check SDK NDK in android Studio
+* Gitlab Mirroring
