@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -11,7 +11,6 @@ import MainPage from './screens/MainPage';
 import Search from './screens/Search';
 
 import {CoreContext} from './context/CoreManagement';
-
 
 const { Navigator, Screen } = createBottomTabNavigator();
 const MyTheme : any = {

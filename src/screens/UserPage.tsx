@@ -27,34 +27,42 @@ import tag_data from '../etc/tag'
 import { add, color } from 'react-native-reanimated';
 import style from '../styles/styles';
 import { TouchableHighlight } from 'react-native-gesture-handler';
-// import Animated from 'react-native-reanimated';
 
-interface ColorBlockProps {
-	name: string;
-	boxId: string;
-}
 
+import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import auth from '@react-native-firebase/auth'
+
+// Oauth
 const colorList = ['#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7']
-const ColorBlock = ({ name, boxId }: ColorBlockProps) => (
-	<DraxView
-		style={[
-			styles.centeredContent,
-			styles.colorBlock,
-			{ backgroundColor: 'rgba(0,0,0,0)' },
-		]}
-		draggingStyle={styles.dragging}
-		dragReleasedStyle={styles.dragging}
-		hoverDraggingStyle={styles.hoverDragging}
-		dragPayload={{ text: name, boxId }}
-	>
-		<Text style={{ color: 'black', fontSize: 17 }}>{'#' + name}</Text>
-	</DraxView>
-);
+
 
 const ColorDragDrop = (props: any) => {
 
 
+	
 	// const 모음
+	const [userInfo,setUserInfo] = useState({})
+
+	const onGoogleButtonPress = async () => {
+		const { idToken } = await GoogleSignin.signIn();
+		const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+		return auth().signInWithCredential(googleCredential);
+	}
+	const [loggedin, setLoggedIn] = useState(false);
+	auth().onAuthStateChanged((user) => {
+		if (user) {
+			setLoggedIn(true)
+			const user = auth().currentUser;
+			setUserInfo(user)
+			console.log("loggedIn")
+			console.log(user)
+		} else {
+			setLoggedIn(false)
+			console.log("loggedOut")
+		}
+	}
+	)
+
 
 	const renderTime = 10
 	const [modalVisible, setModalVisible] = useState(false);
@@ -73,7 +81,7 @@ const ColorDragDrop = (props: any) => {
 	const [tagStateModal, setTagStateModal] = useState(false)
 	const [autoTagStateModal, setAutoTagStateModal] = useState(false)
 	const [tagStateModalTag, setTagStateModalTag] = useState(['Tag'])
-
+	
 
 
 	const playlist = ['나만의 플레이리스트', '신나는 음악', '드라이브', '드라이브 ']
@@ -103,7 +111,6 @@ const ColorDragDrop = (props: any) => {
 	interface addList {
 		push(arg0: { tagName: string; isFixed: string; }): any;
 	}
-
 
 
 	// 사용자 태그 저장 후 전송 시 통신 코드 
@@ -153,9 +160,10 @@ const ColorDragDrop = (props: any) => {
 			});
 
 		axios
-			.get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/main/${userId}`)
+			.get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/user/info/${userId}`)
 			.then((response) => {
-				setAutoTag(response.data['tagList']);
+				setAutoTag(response.data['unfixedTagList']);
+				setFixedTag(response.data['fixedTagList']);
 				setUserName(response.data['userName']);
 				setUserImage(response.data['userImage']);
 			}).catch(error => {
@@ -258,7 +266,7 @@ const ColorDragDrop = (props: any) => {
 					</Modal>
 					{/* 로그인 화면 */}
 
-					{loginStatus ?
+					{!loggedin ?
 
 						<View style={[rStyles.centeredView, { height: '100%', justifyContent: "flex-start", }]}>
 
@@ -272,7 +280,7 @@ const ColorDragDrop = (props: any) => {
 								</View>
 								<View style={{ width: '100%', alignItems: 'center' }}>
 									<TouchableOpacity onPress={() => { setLoginStatus(false) }} style={{ width: '77%', backgroundColor: '#F1BFBF', height: 55, borderRadius: 10, marginBottom: 8, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 18, color: 'white', fontWeight: 'bold' }}>로그인</Text></TouchableOpacity>
-									<TouchableOpacity style={{ flexDirection: 'row', width: '77%', borderColor: '#E8E9EA', borderWidth: 2, height: 55, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
+									<TouchableOpacity onPress={() => { onGoogleButtonPress() }} style={{ flexDirection: 'row', width: '77%', borderColor: '#E8E9EA', borderWidth: 2, height: 55, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
 										<Image source={require('../images/google-logo-thumbnail.png')} style={{ height: 35, width: 35, marginRight: 5 }}></Image>
 										<Text style={{ fontSize: 18, color: 'black', fontWeight: 'bold' }}>구글 계정으로 로그인</Text>
 									</TouchableOpacity>
@@ -299,13 +307,16 @@ const ColorDragDrop = (props: any) => {
 									<View style={{ flexDirection: 'row', paddingLeft: 30, paddingTop: 40, height: 100 }}>
 										<View style={{ width: 320, height: 40 }}>
 											<Text style={{ fontSize: 17 }}>안녕하세요,</Text>
-											<Text style={{ fontSize: 25, fontWeight: 'bold' }}>{userName}님</Text>
+											<Text style={{ fontSize: 25, fontWeight: 'bold' }}>{userInfo.displayName}님</Text>
 										</View>
-										<TouchableOpacity>
+										<TouchableOpacity onPress={() => { auth().signOut();
+											if (loggedin) {
+											GoogleSignin.revokeAccess() }
+											}}>
 											<View style={{ flexDirection: 'row' }}>
 												<ImageBackground source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/user_images/userimage_sample.png` }}
 													style={{ width: 60, height: 60, marginRight: 20 }} borderRadius={20} imageStyle={{ opacity: 1 }}>
-													<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/user_images/userimage_sample.png` }}
+													<Image source={{ uri: `${userInfo.photoURL}` }}
 														style={{ width: 60, height: 60 }} borderRadius={20} />
 												</ImageBackground>
 											</View>
@@ -317,7 +328,7 @@ const ColorDragDrop = (props: any) => {
 											<TouchableOpacity onPress={() => {
 												setTagSearchOn(!tagSearchOn)
 												onClickSendTag();
-												SetValue([...fixedTag,...autoTag])
+												SetValue([...fixedTag, ...autoTag])
 											}} style={{ width: 85, height: 35, backgroundColor: colorList[1], borderRadius: 8, justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontSize: 18 }}>{tagSearchOn ? '수정' : '저장'}</Text></TouchableOpacity>
 										</View>
 
@@ -367,7 +378,7 @@ const ColorDragDrop = (props: any) => {
 														</View>
 													)
 												)
-												: <Text style={{ fontSize: 17, fontStyle: 'italic' ,marginVertical: 5}}>추천 태그</Text>
+												: <Text style={{ fontSize: 17, fontStyle: 'italic', marginVertical: 5 }}>추천 태그</Text>
 											}
 										</View>
 										<View style={{ width: '100%' }}>
