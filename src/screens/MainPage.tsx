@@ -74,10 +74,8 @@ const ReorderableList = (props) => {
       .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/music/stream/${userId}/${music_id}`).
       then((response) => {
         setMusicInfo(response.data);
-        console.log('abs')
       }).catch(error => {
         console.log(error.config)
-        console.log('abbs')
       });
     setPlayModalVisible(true)
   }
@@ -143,10 +141,10 @@ const ReorderableList = (props) => {
               setPlayModalVisible(!playmodalVisible);
             }}
           >
-            <View>
+            <ScrollView>
               <View style={{ paddingTop: 20 }}>
                 <View style={{ paddingHorizontal: 30, alignItems: 'flex-start' }}>
-                  <Text style={{ fontSize: 25, color: 'black', marginTop: 8, fontWeight: 'bold' }} numberOfLines={1} ellipsizeMode="tail">{musicInfo.musicTitle}</Text>
+                  <Text style={{ fontSize: 27, color: 'black', marginTop: 8, fontWeight: 'bold' }} numberOfLines={1} ellipsizeMode="tail">{musicInfo.musicTitle}</Text>
                   <Text style={{ fontSize: 18, color: 'black', marginTop: 8 }} numberOfLines={1} ellipsizeMode="tail">{musicInfo.artist}</Text>
                 </View>
                 <View>
@@ -158,7 +156,7 @@ const ReorderableList = (props) => {
                       videoId={musicInfo.youtubeId}
                     />
                   </View>
-                  <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingRight: 30 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingRight: 30, height: 30 }}>
                     {musicInfo.tagList && musicInfo.tagList.map((tag: any, index: any) => (
                       <View key={index}>
                         <Text style={{ color: 'black', fontSize: 18, margin: 5 }}>#{tag}</Text>
@@ -167,22 +165,37 @@ const ReorderableList = (props) => {
                   </View>
                 </View>
                 <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', height: 4, marginVertical: 15 }}>
-                  <View style={{ backgroundColor: 'gray', width: '85%', height: 3 }}></View>
+                  <View style={{ backgroundColor: 'gray', width: '88%', height: 3 }}></View>
                 </View>
-                <View>
-                  <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                    {musicInfo.musicLyric && musicInfo.musicLyric.split('\n').slice(0, 7).map((lyric: any, index) => (
-                      <View key={index}>
-                        <Text style={{ fontSize: 18, color: 'gray', marginTop: 10 }}>{lyric}</Text>
-                      </View>
-                    ))}
-                  </View>
+                <View style={{ paddingHorizontal: 30, alignItems: 'flex-start' }}>
+                  <Text style={{ fontSize: 27, color: 'black', marginTop: 5, fontWeight: 'bold' }}>다음 곡</Text>
+                  <ScrollView style={{ paddingHorizontal: 0, paddingVertical: 15 }} horizontal={true} showsHorizontalScrollIndicator={false}>
+                    {Array.from(Array(Math.ceil(pMusicList.length*2 / 5)).keys()).map((n, index) => (
+                      <ScrollView key={index} style={{  }}>
+                        {[...pMusicList,...pMusicList].slice(n * 5, (n + 1) * 5).map((music, index) => {
+                          return (
+                            <TouchableOpacity key={index} style={{ width: 370, height: 80, padding: 4, marginVertical: 5, marginRight: 30, backgroundColor: colorList[index], alignItems: 'center', flexDirection: 'row', borderRadius: 15 }} onPress={() => onClickMusic(music.musicId)}>
+                              <ImageBackground source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
+                                style={{ height: '100%', aspectRatio: 1, marginRight: 5 }} borderRadius={12} imageStyle={{ opacity: 0.5 }}>
+                                <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${music.musicId}.jpg` }}
+                                  style={{ width: '100%', height: '100%', borderColor: 'white', borderWidth: 3, borderRadius: 12 }} />
+                              </ImageBackground>
+                              <View style={{ width: 230 }}>
+                                <Text style={{ color: '#454545', marginLeft: 10, fontSize: 17, fontWeight: 'bold' }} numberOfLines={1} ellipsizeMode="tail">{'나에게로 떠나는 여행'}</Text>
+                                <Text style={{ color: '#454545', marginLeft: 10, marginTop: 2, fontSize: 15 }} numberOfLines={1} ellipsizeMode="tail">{'아티스트(Artist)'}</Text>
+                              </View>
+                              <View style={{ marginRight: 5, flex: 1, marginLeft: 5 }}><Icon name="play" color='#626262' size={40} /></View>
+                            </TouchableOpacity>
+                          )
+                        })}
+                      </ScrollView>))}
+                  </ScrollView>
                 </View>
                 <View>
 
                 </View>
               </View>
-            </View>
+            </ScrollView>
           </Modal>
 
           {/* 태그 기반 추천 음악 Page */}
