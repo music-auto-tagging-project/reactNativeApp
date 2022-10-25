@@ -309,7 +309,7 @@ const ReorderableList = (props) => {
             {SetValue(backValue)}
             <View style={{ flexDirection: 'row', paddingLeft: 30, paddingTop: 55 }}>
               <View style={{ justifyContent: 'center', width: 320, height: 80 }}>
-                <Text style={{ fontSize: 25, fontWeight: 'bold' }}>{userName}님</Text>
+                <Text style={{ fontSize: 25, fontWeight: 'bold' }}>이상재님</Text>
                 <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{ backgroundColor: 'white', flex: 1, width: 250, height: 30 }}>
                   <View style={{ flexDirection: 'row' }}>
                     {backValue && backValue.map((tag, index) => (
