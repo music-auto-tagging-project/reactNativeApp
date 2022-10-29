@@ -112,7 +112,6 @@ const ReorderableList = (props) => {
       }).catch(error => {
         console.log(error.config)
       })
-
   }, []
   )
 
@@ -129,7 +128,7 @@ const ReorderableList = (props) => {
 
   return (
     <CoreConsumer>
-      {({ value, SetValue }) => (
+      {({ value, name, image,SetValue }) => (
         <View>
           {/* 선호 아티스트 선택 */}
           <Modal
@@ -137,7 +136,7 @@ const ReorderableList = (props) => {
             transparent={false}
             visible={!selectTrue}
           >
-            <View style={{flex:11}}>
+            <View style={{ flex: 11 }}>
               <ScrollView>
                 <View style={{ marginLeft: 30, marginTop: 30 }}>
                   <Text style={{ fontWeight: 'bold', fontSize: 25 }}>선호 아티스트 선택</Text>
@@ -177,7 +176,7 @@ const ReorderableList = (props) => {
             </View>
             <View style={{
               flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center',
-              paddingHorizontal: 20, flex:1, borderBottomColor: 'rgba(200,200,200,0.4)',
+              paddingHorizontal: 20, flex: 1, borderBottomColor: 'rgba(200,200,200,0.4)',
               borderTopColor: 'rgba(200,200,200,0.8)', borderWidth: 1,
             }}>
               <View style={{ position: 'absolute', width: '100%' }}>
@@ -309,7 +308,7 @@ const ReorderableList = (props) => {
             {SetValue(backValue)}
             <View style={{ flexDirection: 'row', paddingLeft: 30, paddingTop: 55 }}>
               <View style={{ justifyContent: 'center', width: 320, height: 80 }}>
-                <Text style={{ fontSize: 25, fontWeight: 'bold' }}>이상재님</Text>
+                <Text style={{ fontSize: 25, fontWeight: 'bold' }}>{name}님</Text>
                 <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{ backgroundColor: 'white', flex: 1, width: 250, height: 30 }}>
                   <View style={{ flexDirection: 'row' }}>
                     {backValue && backValue.map((tag, index) => (
@@ -332,7 +331,7 @@ const ReorderableList = (props) => {
                 <View style={{ flexDirection: 'row' }}>
                   <ImageBackground source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/user_images/userimage_sample.png` }}
                     style={{ width: 60, height: 60, marginRight: 20 }} borderRadius={10} imageStyle={{ opacity: 1 }}>
-                    <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/user_images/userimage_sample.png` }}
+                    <Image source={{ uri: image }}
                       style={{ width: 60, height: 60 }} borderRadius={12} />
                   </ImageBackground>
                 </View>
@@ -403,6 +402,7 @@ const ReorderableList = (props) => {
                       )
                     })}
                   </View>))}
+
               </ScrollView>
             </View>
           </ScrollView >

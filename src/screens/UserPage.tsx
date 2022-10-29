@@ -12,7 +12,6 @@ import { CoreContext, CoreConsumer } from '../context/CoreManagement';
 
 import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth'
-import { BottomTabBar } from '@react-navigation/bottom-tabs';
 
 // Oauth
 const colorList = ['#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#CFBFF1']
@@ -25,25 +24,6 @@ const ColorDragDrop = (props: any) => {
 	// const 모음
 	const [userInfo, setUserInfo] = useState({})
 
-	const onGoogleButtonPress = async () => {
-		const { idToken } = await GoogleSignin.signIn();
-		const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-		return auth().signInWithCredential(googleCredential);
-	}
-	const [loggedin, setLoggedIn] = useState(false);
-	auth().onAuthStateChanged((user) => {
-		if (user) {
-			setLoggedIn(true)
-			const user = auth().currentUser;
-			setUserInfo(user)
-			console.log("loggedIn")
-		} else {
-			setLoggedIn(false)
-			console.log("loggedOut")
-		}
-	})
-
-
 	const renderTime = 10
 	const [modalVisible, setModalVisible] = useState(false);
 	const [userName, setUserName] = useState('User_1')
@@ -55,8 +35,6 @@ const ColorDragDrop = (props: any) => {
 	const [text_array, setText_Array] = useState(["사랑", "이별", "서정적", "슬픔", "뭉게구름", "따뜻한", "새벽", "감성"])
 	const [inputText, setInputText] = useState('')
 	const [deletedTag, setDeletedTag] = useState<string[]>([])
-	const [loginStatus, setLoginStatus] = useState(true)
-	const [accountModal, setAccountModal] = useState(false)
 	const [tagSearchOn, setTagSearchOn] = useState(true)
 	const [tagStateModal, setTagStateModal] = useState(false)
 	const [autoTagStateModal, setAutoTagStateModal] = useState(false)
@@ -216,12 +194,14 @@ const ColorDragDrop = (props: any) => {
 
 	function delPlaylist() {
 
-		axios.delete("http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/playlist/delete", { data : {
-			"userId": 3,
-			"playlistId": 25
-		}, 
-			withCredentials: true}
-		  )
+		axios.delete("http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/playlist/delete", {
+			data: {
+				"userId": 3,
+				"playlistId": 25
+			},
+			withCredentials: true
+		}
+		)
 	}
 
 	function find_nm(nm: any) {
@@ -285,7 +265,7 @@ const ColorDragDrop = (props: any) => {
 
 	return (
 		<CoreConsumer>
-			{({ value, SetValue }) => (
+			{({ value, image,name, SetValue, SetName }) => (
 				<View>
 					{/* 음악 정보 모달창 */}
 					<Modal
@@ -791,180 +771,142 @@ const ColorDragDrop = (props: any) => {
 							</View>
 						</View>
 					</Modal>
-					{/* 로그인 화면 */}
+					<View style={[rStyles.centeredView]}>
+						{/* 유저 페이지 */}
+						<ScrollView>
 
-					{
-						!loggedin ?
-
-							<View style={[rStyles.centeredView, { height: '100%', justifyContent: "flex-start", }]}>
-
-
-								<View style={{ justifyContent: 'center', alignItems: 'center' }}>
-									<View style={{ height: 150 }}></View>
-									<View style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-										<TextInput style={{ marginBottom: 25, paddingLeft: 15, width: '77%', backgroundColor: '#F7F8F9', height: 55, borderColor: '#E0E1E2', borderWidth: 1, borderRadius: 10, fontSize: 18 }} placeholder='아이디' placeholderTextColor='#CECED1'></TextInput>
-										<TextInput secureTextEntry={true} style={{ paddingLeft: 15, width: '77%', backgroundColor: '#F7F8F9', height: 55, borderColor: '#E0E1E2', borderWidth: 1, borderRadius: 10, fontSize: 18 }} placeholder='비밀번호' placeholderTextColor='#CECED1'></TextInput>
-										<View style={{ alignItems: 'flex-end', width: '100%', marginTop: 70, marginBottom: 40, paddingRight: 50 }}><Text style={{ color: '#6B8BDE' }}>비밀번호 재설정</Text></View>
+							<View style={{}}>
+								<View style={{ flexDirection: 'row', paddingLeft: 30, paddingTop: 40, height: 100 }}>
+									<View style={{ width: 320, height: 40 }}>
+										<Text style={{ fontSize: 17 }}>안녕하세요,</Text>
+										<Text style={{ fontSize: 25, fontWeight: 'bold' }}>{name}님</Text>
 									</View>
-									<View style={{ width: '100%', alignItems: 'center' }}>
-										<TouchableOpacity onPress={() => { setLoginStatus(false) }} style={{ width: '77%', backgroundColor: '#F1BFBF', height: 55, borderRadius: 10, marginBottom: 8, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 18, color: 'white', fontWeight: 'bold' }}>로그인</Text></TouchableOpacity>
-										<TouchableOpacity onPress={() => { onGoogleButtonPress() }} style={{ flexDirection: 'row', width: '77%', borderColor: '#E8E9EA', borderWidth: 2, height: 55, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
-											<Image source={require('../images/google-logo-thumbnail.png')} style={{ height: 35, width: 35, marginRight: 5 }}></Image>
-											<Text style={{ fontSize: 18, color: 'black', fontWeight: 'bold' }}>구글 계정으로 로그인</Text>
-										</TouchableOpacity>
-										<View style={{ flexDirection: 'row', marginTop: 35 }}>
-											<Text>아직 계정이 없으신가요?</Text>
-											<TouchableOpacity style={{ marginLeft: 10 }}><Text style={{ fontWeight: 'bold' }}>회원가입</Text></TouchableOpacity>
+									<TouchableOpacity onPress={() => {
+										auth().signOut();
+										GoogleSignin.revokeAccess();
+									}}>
+										<View style={{ flexDirection: 'row' }}>
+											<ImageBackground source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/user_images/userimage_sample.png` }}
+												style={{ width: 60, height: 60, marginRight: 20 }} borderRadius={20} imageStyle={{ opacity: 1 }}>
+												<Image source={{ uri: image }}
+													style={{ width: 60, height: 60 }} borderRadius={20} />
+											</ImageBackground>
 										</View>
+									</TouchableOpacity>
+								</View>
+								<View>
+									<View style={{ flexDirection: 'row', marginTop: 15, marginLeft: 30, alignItems: 'center' }}>
+										<Text style={{ fontSize: 17, color: 'black', width: 295 }}>태그를 추가해 보세요.</Text>
+										<TouchableOpacity onPress={() => {
+											setTagSearchOn(!tagSearchOn)
+											onClickSendTag();
+											SetValue([...fixedTag, ...autoTag])
+										}} style={{ width: 85, height: 35, backgroundColor: colorList[1], borderRadius: 8, justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontSize: 18 }}>{tagSearchOn ? '수정' : '저장'}</Text></TouchableOpacity>
 									</View>
+
+									{tagSearchOn ? <View style={{ height: 10 }}></View> : <View>
+										<TouchableOpacity style={{ alignItems: 'center', marginTop: 20, }}>
+											<View style={{ justifyContent: 'center', width: 370, backgroundColor: colorList[1], height: 50, borderRadius: 10, paddingLeft: 20 }}>
+												<TextInput onChangeText={(nm) => {
+													find_nm(nm);
+													setInputText(nm)
+												}} style={{ padding: 0, fontSize: 17 }} placeholder="태그 검색" placeholderTextColor='#A1A1A1'></TextInput>
+											</View>
+										</TouchableOpacity>
+										<View style={inputText == '' ? { marginTop: 10, height: 0 } : { marginTop: 10, height: 30 }}>
+											{Array.from(Array(1).keys()).map((n, index) =>
+												<ScrollView horizontal={true} key={n} style={{ flexDirection: 'row', paddingHorizontal: 20 }}>
+													{startText.map((tag) => (
+														<TouchableOpacity key={tag} style={{ marginHorizontal: 5, padding: 0.5 }} onPress={() => { setFixedTag([...fixedTag, tag]) }}>
+															<Text style={{ fontSize: 17 }}>{'#' + tag}</Text>
+														</TouchableOpacity>
+													))}
+												</ScrollView>
+											)}
+										</View>
+									</View>}
 
 								</View>
 
 
 
-							</View>
 
-
-
-							:
-							<View style={[rStyles.centeredView]}>
-								{/* 유저 페이지 */}
-								<ScrollView>
-
-									<View style={{}}>
-										<View style={{ flexDirection: 'row', paddingLeft: 30, paddingTop: 40, height: 100 }}>
-											<View style={{ width: 320, height: 40 }}>
-												<Text style={{ fontSize: 17 }}>안녕하세요,</Text>
-												<Text style={{ fontSize: 25, fontWeight: 'bold' }}>{userInfo.displayName}님</Text>
-											</View>
-											<TouchableOpacity onPress={() => {
-												auth().signOut();
-												if (loggedin) {
-													GoogleSignin.revokeAccess()
-												}
-											}}>
-												<View style={{ flexDirection: 'row' }}>
-													<ImageBackground source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/user_images/userimage_sample.png` }}
-														style={{ width: 60, height: 60, marginRight: 20 }} borderRadius={20} imageStyle={{ opacity: 1 }}>
-														<Image source={{ uri: `${userInfo.photoURL}` }}
-															style={{ width: 60, height: 60 }} borderRadius={20} />
-													</ImageBackground>
-												</View>
-											</TouchableOpacity>
-										</View>
-										<View>
-											<View style={{ flexDirection: 'row', marginTop: 15, marginLeft: 30, alignItems: 'center' }}>
-												<Text style={{ fontSize: 17, color: 'black', width: 295 }}>태그를 추가해 보세요.</Text>
-												<TouchableOpacity onPress={() => {
-													setTagSearchOn(!tagSearchOn)
-													onClickSendTag();
-													SetValue([...fixedTag, ...autoTag])
-												}} style={{ width: 85, height: 35, backgroundColor: colorList[1], borderRadius: 8, justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontSize: 18 }}>{tagSearchOn ? '수정' : '저장'}</Text></TouchableOpacity>
-											</View>
-
-											{tagSearchOn ? <View style={{ height: 10 }}></View> : <View>
-												<TouchableOpacity style={{ alignItems: 'center', marginTop: 20, }}>
-													<View style={{ justifyContent: 'center', width: 370, backgroundColor: colorList[1], height: 50, borderRadius: 10, paddingLeft: 20 }}>
-														<TextInput onChangeText={(nm) => {
-															find_nm(nm);
-															setInputText(nm)
-														}} style={{ padding: 0, fontSize: 17 }} placeholder="태그 검색" placeholderTextColor='#A1A1A1'></TextInput>
-													</View>
-												</TouchableOpacity>
-												<View style={inputText == '' ? { marginTop: 10, height: 0 } : { marginTop: 10, height: 30 }}>
-													{Array.from(Array(1).keys()).map((n, index) =>
-														<ScrollView horizontal={true} key={n} style={{ flexDirection: 'row', paddingHorizontal: 20 }}>
-															{startText.map((tag) => (
-																<TouchableOpacity key={tag} style={{ marginHorizontal: 5, padding: 0.5 }} onPress={() => { setFixedTag([...fixedTag, tag]) }}>
-																	<Text style={{ fontSize: 17 }}>{'#' + tag}</Text>
-																</TouchableOpacity>
-															))}
-														</ScrollView>
-													)}
-												</View>
-											</View>}
-
-										</View>
-
-
-
-
-										<View style={{ justifyContent: 'center', alignItems: 'center' }}>
-											<View style={{ width: '100%' }}>
-												<View style={{ marginLeft: 30, marginVertical: 15 }}>
-													<Text style={{ fontSize: 17 }}>나의 태그</Text>
-												</View>
-											</View>
-											<View style={{ borderRadius: 10, width: 370, paddingVertical: 11, paddingHorizontal: 20, backgroundColor: colorList[2] }}>
-												{fixedTag.length && fixedTag.length > 0 ?
-													(
-														Array.from(Array(Math.ceil(fixedTag.length / 5)).keys()).map((n, index) =>
-															<View key={index} style={{ flexDirection: 'row' }}>
-																{fixedTag.slice(n * 5, (n + 1) * 5).map((tag, index) => (
-																	<TouchableOpacity key={tag} style={{ marginHorizontal: 5, marginVertical: 5 }} onPress={(e) => { changeTagState(tag, e) }}>
-																		<Text style={{ fontSize: 17 }}>{'#' + tag}</Text>
-																	</TouchableOpacity>
-																))}
-															</View>
-														)
-													)
-													: <Text style={{ fontSize: 17, fontStyle: 'italic', marginVertical: 5 }}>추천 태그</Text>
-												}
-											</View>
-											<View style={{ width: '100%' }}>
-												<View style={{ marginLeft: 30, marginVertical: 15 }}>
-													<Text style={{ fontSize: 17 }}>추천 태그</Text>
-												</View>
-											</View>
-											<View style={{ borderRadius: 10, width: 370, paddingVertical: 11, paddingHorizontal: 20, backgroundColor: colorList[3] }}>
-												{autoTag.length && autoTag.length > 0 ?
-													(
-														Array.from(Array(Math.ceil(autoTag.length / 5)).keys()).map((n, index) =>
-															<View key={index} style={{ flexDirection: 'row' }}>
-																{autoTag.slice(n * 5, (n + 1) * 5).map((tag, index) => (
-																	<TouchableOpacity key={tag} style={{ marginHorizontal: 5, marginVertical: 5 }} onPress={(e) => { changeAutoTagState(tag, e) }}>
-																		<Text style={{ fontSize: 17 }}>{'#' + tag}</Text>
-																	</TouchableOpacity>
-																))}
-															</View>
-														)
-													)
-													: <Text style={{ fontSize: 17, fontStyle: 'italic', marginVertical: 5 }}>추천 태그</Text>
-												}
-											</View>
-										</View>
-
-
-										<View style={{ flex: 3 }}>
-											<View style={{ flexDirection: 'row', paddingTop: 40, paddingLeft: 30 }}>
-												<Text style={{ fontSize: 25, color: 'black', fontWeight: 'bold' }}>플레이리스트</Text>
-												<View style={{ marginTop: 40, height: 30, width: '100%', position: 'absolute', justifyContent: 'center', alignItems: 'flex-end' }}>
-													<TouchableOpacity onPress={() => { setShowPlaylist(!showPlaylist) }}>
-														<Text style={{ fontSize: 17, color: '#454545' }}>편집</Text>
-													</TouchableOpacity>
-												</View>
-											</View>
-											<View style={{ alignItems: 'center', justifyContent: 'center' }}>
-												{playlist.map((list, index) => (
-													<TouchableOpacity onPress={() => { setPlayingPlaylist(true) }} style={{ padding: 9, flexDirection: 'row', height: 125, backgroundColor: colorList[(index + 4) % 7], borderRadius: 12, width: '88%', marginVertical: 10, }} key={list}>
-														<View>
-															<Image source={require('../images/playlisticon.jpg')} style={{ height: '100%', aspectRatio: 1, borderRadius: 20 }} />
-														</View>
-														<View style={{ padding: 10, width: '100%' }}>
-															<View style={{ marginLeft: 5 }}>
-																<Text style={{ fontSize: 20, color: '#454545', fontWeight: 'bold' }}>{list}</Text>
-																<Text style={{ fontSize: 15, color: '#454545', fontWeight: 'bold' }}>2022. 08. 17</Text>
-															</View>
-															<View style={{ alignItems: 'flex-end', width: '70%' }}><Icon name="play" color='#626262' size={0} /></View>
-														</View>
-													</TouchableOpacity>
-												))}
-											</View>
+								<View style={{ justifyContent: 'center', alignItems: 'center' }}>
+									<View style={{ width: '100%' }}>
+										<View style={{ marginLeft: 30, marginVertical: 15 }}>
+											<Text style={{ fontSize: 17 }}>나의 태그</Text>
 										</View>
 									</View>
-								</ScrollView>
+									<View style={{ borderRadius: 10, width: 370, paddingVertical: 11, paddingHorizontal: 20, backgroundColor: colorList[2] }}>
+										{fixedTag.length && fixedTag.length > 0 ?
+											(
+												Array.from(Array(Math.ceil(fixedTag.length / 5)).keys()).map((n, index) =>
+													<View key={index} style={{ flexDirection: 'row' }}>
+														{fixedTag.slice(n * 5, (n + 1) * 5).map((tag, index) => (
+															<TouchableOpacity key={tag} style={{ marginHorizontal: 5, marginVertical: 5 }} onPress={(e) => { changeTagState(tag, e) }}>
+																<Text style={{ fontSize: 17 }}>{'#' + tag}</Text>
+															</TouchableOpacity>
+														))}
+													</View>
+												)
+											)
+											: <Text style={{ fontSize: 17, fontStyle: 'italic', marginVertical: 5 }}>추천 태그</Text>
+										}
+									</View>
+									<View style={{ width: '100%' }}>
+										<View style={{ marginLeft: 30, marginVertical: 15 }}>
+											<Text style={{ fontSize: 17 }}>추천 태그</Text>
+										</View>
+									</View>
+									<View style={{ borderRadius: 10, width: 370, paddingVertical: 11, paddingHorizontal: 20, backgroundColor: colorList[3] }}>
+										{autoTag.length && autoTag.length > 0 ?
+											(
+												Array.from(Array(Math.ceil(autoTag.length / 5)).keys()).map((n, index) =>
+													<View key={index} style={{ flexDirection: 'row' }}>
+														{autoTag.slice(n * 5, (n + 1) * 5).map((tag, index) => (
+															<TouchableOpacity key={tag} style={{ marginHorizontal: 5, marginVertical: 5 }} onPress={(e) => { changeAutoTagState(tag, e) }}>
+																<Text style={{ fontSize: 17 }}>{'#' + tag}</Text>
+															</TouchableOpacity>
+														))}
+													</View>
+												)
+											)
+											: <Text style={{ fontSize: 17, fontStyle: 'italic', marginVertical: 5 }}>추천 태그</Text>
+										}
+									</View>
+								</View>
+										
+								<View style={{ flex: 3 }}>
+									<View style={{ flexDirection: 'row', paddingTop: 40, paddingLeft: 30 }}>
+										<View>
+											<Text style={{ fontSize: 25, color: 'black', fontWeight: 'bold' }}>플레이리스트</Text>
+										</View>
+										<View style={{ marginTop: 40, height: 30, width: '100%', position: 'absolute', justifyContent: 'center', alignItems: 'flex-end' }}>
+											<TouchableOpacity onPress={() => { setShowPlaylist(!showPlaylist) }}>
+												<Text style={{ fontSize: 17, color: '#454545' }}>편집</Text>
+											</TouchableOpacity>
+										</View>
+									</View>
+									<View style={{ alignItems: 'center', justifyContent: 'center' }}>
+										{playlist.map((list, index) => (
+											<TouchableOpacity onPress={() => { setPlayingPlaylist(true) }} style={{ padding: 9, flexDirection: 'row', height: 125, backgroundColor: colorList[(index + 4) % 7], borderRadius: 12, width: '88%', marginVertical: 10, }} key={list}>
+												<View>
+													<Image source={require('../images/playlisticon.jpg')} style={{ height: '100%', aspectRatio: 1, borderRadius: 20 }} />
+												</View>
+												<View style={{ padding: 10, width: '100%' }}>
+													<View style={{ marginLeft: 5 }}>
+														<Text style={{ fontSize: 20, color: '#454545', fontWeight: 'bold' }}>{list}</Text>
+														<Text style={{ fontSize: 15, color: '#454545', fontWeight: 'bold' }}>2022. 08. 17</Text>
+													</View>
+													<View style={{ alignItems: 'flex-end', width: '70%' }}><Icon name="play" color='#626262' size={0} /></View>
+												</View>
+											</TouchableOpacity>
+										))}
+									</View>
+								</View>
 							</View>
-					}
+						</ScrollView>
+					</View>
 				</View >
 			)}
 		</CoreConsumer >
