@@ -3,7 +3,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import * as React from 'react';
 import { useState, useEffect, useRef, Component, useContext, useCallback } from 'react';
-import { TextInput, Image, ScrollView, Modal, Animated, ImageBackground, Pressable } from 'react-native';
+import { TextInput, Image, ScrollView, Modal, Animated, ImageBackground, Pressable, RefreshControl } from 'react-native';
 import rStyles from '../styles/styles'
 import axios from 'axios';
 import * as Hangul from 'hangul-js';
@@ -19,7 +19,24 @@ const colorList = ['#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0
 
 const ColorDragDrop = (props: any) => {
 
-
+	const wait = (timeout) => {
+		return new Promise(resolve => setTimeout(resolve, timeout));
+	}
+	const [refreshing, setRefreshing] = React.useState(false);
+	const onRefresh = React.useCallback(() => {
+		axios
+			.get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/user/info/${userId}`)
+			.then((response) => {
+				setAutoTag(response.data['unfixedTagList']);
+				setFixedTag(response.data['fixedTagList']);
+				setUserName(response.data['userName']);
+				setUserImage(response.data['userImage']);
+			}).catch(error => {
+				console.log(error.config)
+			});
+		setRefreshing(true);
+		wait(300).then(() => setRefreshing(false));
+	}, []);
 
 	// const 모음
 	const [userInfo, setUserInfo] = useState({})
@@ -140,6 +157,8 @@ const ColorDragDrop = (props: any) => {
 				console.log(error.config)
 			})
 
+
+
 	}, []
 	)
 
@@ -245,6 +264,17 @@ const ColorDragDrop = (props: any) => {
 				console.log(error.config)
 			});
 
+		axios
+			.get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/user/info/${userId}`)
+			.then((response) => {
+				setAutoTag(response.data['unfixedTagList']);
+				setFixedTag(response.data['fixedTagList']);
+				setUserName(response.data['userName']);
+				setUserImage(response.data['userImage']);
+			}).catch(error => {
+				console.log(error.config)
+			});
+
 		setText_Array(["사랑", "벚꽃", "눈물", "행운", "마음", "연인"])
 
 	}, []
@@ -265,7 +295,7 @@ const ColorDragDrop = (props: any) => {
 
 	return (
 		<CoreConsumer>
-			{({ value, image,name, SetValue, SetName }) => (
+			{({ value, image, name, SetValue, SetName }) => (
 				<View>
 					{/* 음악 정보 모달창 */}
 					<Modal
@@ -773,7 +803,13 @@ const ColorDragDrop = (props: any) => {
 					</Modal>
 					<View style={[rStyles.centeredView]}>
 						{/* 유저 페이지 */}
-						<ScrollView>
+						<ScrollView persistentScrollbar={true}
+							refreshControl={
+								<RefreshControl
+									refreshing={refreshing}
+									onRefresh={onRefresh}
+								/>
+							}>
 
 							<View style={{}}>
 								<View style={{ flexDirection: 'row', paddingLeft: 30, paddingTop: 40, height: 100 }}>
@@ -875,7 +911,7 @@ const ColorDragDrop = (props: any) => {
 										}
 									</View>
 								</View>
-										
+
 								<View style={{ flex: 3 }}>
 									<View style={{ flexDirection: 'row', paddingTop: 40, paddingLeft: 30 }}>
 										<View>

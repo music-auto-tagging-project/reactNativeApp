@@ -66,7 +66,7 @@ const ReorderableList = (props) => {
   const [backValue, SetbackValue] = useState(result.value);
   const navigation = useNavigation();
   const [main, setMain] = useState(true)
-  const colorList = ['#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7', '#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#D6A7D7']
+  const colorList = ['#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#CFBFF1']
 
   // 음악 선택 시 
   function onClickMusic(music_id: number) {
@@ -146,7 +146,7 @@ const ReorderableList = (props) => {
                     <View key={n} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: 2 }}>
                       {[1, 2, 3, 4, 5, 6, 7, 8].slice(n * 2, (n + 1) * 2).map((m, index2) => (
                         <View key={m} >
-                          <TouchableOpacity onPress={() => checkBox(m)} style={{ backgroundColor: colorList[n + 1], width: 185, height: 250, borderRadius: 15, margin: 12, justifyContent: 'center', alignItems: 'center' }}>
+                          <TouchableOpacity onPress={() => checkBox(m)} style={{ backgroundColor: colorList[(n + 1)%7], width: 185, height: 250, borderRadius: 15, margin: 12, justifyContent: 'center', alignItems: 'center' }}>
                             <View>
                               <View>
                                 <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
@@ -345,8 +345,8 @@ const ReorderableList = (props) => {
                     <View key={index}>
                       {
                         rMusicList.slice(n * 1, (n + 1) * 1).map((music: any, index) => (
-
-                          <View style={[rStyles.MusicBox, { backgroundColor: colorList[n], borderRadius: 12 }]} key={index}>
+                        
+                          <View style={[rStyles.MusicBox, { backgroundColor: colorList[n%7], borderRadius: 12 }]} key={index}>
                             <TouchableOpacity onPress={() => onClickMusic(music.musicId)} style={{ flex: 20, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                               <View>
                                 <ImageBackground source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
