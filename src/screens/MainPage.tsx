@@ -128,7 +128,7 @@ const ReorderableList = (props) => {
 
   return (
     <CoreConsumer>
-      {({ value, name, image,SetValue }) => (
+      {({ value, name, image, SetValue }) => (
         <View>
           {/* 선호 아티스트 선택 */}
           <Modal
@@ -146,7 +146,7 @@ const ReorderableList = (props) => {
                     <View key={n} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: 2 }}>
                       {[1, 2, 3, 4, 5, 6, 7, 8].slice(n * 2, (n + 1) * 2).map((m, index2) => (
                         <View key={m} >
-                          <TouchableOpacity onPress={() => checkBox(m)} style={{ backgroundColor: colorList[(n + 1)%7], width: 185, height: 250, borderRadius: 15, margin: 12, justifyContent: 'center', alignItems: 'center' }}>
+                          <TouchableOpacity onPress={() => checkBox(m)} style={{ backgroundColor: colorList[(n + 1) % 7], width: 185, height: 250, borderRadius: 15, margin: 12, justifyContent: 'center', alignItems: 'center' }}>
                             <View>
                               <View>
                                 <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
@@ -210,12 +210,14 @@ const ReorderableList = (props) => {
                       videoId={musicInfo.youtubeId}
                     />
                   </View>
-                  <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingRight: 30, height: 30 }}>
-                    {musicInfo.tagList && musicInfo.tagList.map((tag: any, index: any) => (
-                      <View key={index}>
-                        <Text style={{ color: 'black', fontSize: 18, margin: 5 }}>#{tag}</Text>
-                      </View>
-                    ))}
+                  <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+                    <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{ flexDirection: 'row', width: '85%' }}>
+                      {musicInfo.tagList && musicInfo.tagList.map((tag: any, index: any) => (
+                        <View key={index}>
+                          <Text style={{ color: 'black', fontSize: 18, margin: 5 }}>#{tag}</Text>
+                        </View>
+                      ))}
+                    </ScrollView>
                   </View>
                 </View>
                 <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', height: 4, marginVertical: 15 }}>
@@ -226,7 +228,7 @@ const ReorderableList = (props) => {
                   <ScrollView style={{ paddingHorizontal: 0, paddingVertical: 15 }} horizontal={true} showsHorizontalScrollIndicator={false}>
                     {Array.from(Array(Math.ceil(pMusicList.length * 2 / 5)).keys()).map((n, index) => (
                       <ScrollView key={index} style={{}}>
-                        {[...pMusicList, ...pMusicList].slice(n * 5, (n + 1) * 5).map((music, index) => {
+                        {rMusicList.slice(n * 5, (n + 1) * 5).map((music, index) => {
                           return (
                             <TouchableOpacity key={index} style={{ width: 370, height: 80, padding: 4, marginVertical: 5, marginRight: 30, backgroundColor: colorList[index], alignItems: 'center', flexDirection: 'row', borderRadius: 15 }} onPress={() => onClickMusic(music.musicId)}>
                               <ImageBackground source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
@@ -235,8 +237,8 @@ const ReorderableList = (props) => {
                                   style={{ width: '100%', height: '100%', borderColor: 'white', borderWidth: 3, borderRadius: 12 }} />
                               </ImageBackground>
                               <View style={{ width: 230 }}>
-                                <Text style={{ color: '#454545', marginLeft: 10, fontSize: 17, fontWeight: 'bold' }} numberOfLines={1} ellipsizeMode="tail">{'나에게로 떠나는 여행'}</Text>
-                                <Text style={{ color: '#454545', marginLeft: 10, marginTop: 2, fontSize: 15 }} numberOfLines={1} ellipsizeMode="tail">{'아티스트(Artist)'}</Text>
+                                <Text style={{ color: '#454545', marginLeft: 10, fontSize: 17, fontWeight: 'bold' }} numberOfLines={1} ellipsizeMode="tail">{music.musicTitle}</Text>
+                                <Text style={{ color: '#454545', marginLeft: 10, marginTop: 2, fontSize: 15 }} numberOfLines={1} ellipsizeMode="tail">{music.musicArtist}</Text>
                               </View>
                               <View style={{ marginRight: 5, flex: 1, marginLeft: 5 }}><Icon name="play" color='#626262' size={40} /></View>
                             </TouchableOpacity>
@@ -345,8 +347,8 @@ const ReorderableList = (props) => {
                     <View key={index}>
                       {
                         rMusicList.slice(n * 1, (n + 1) * 1).map((music: any, index) => (
-                        
-                          <View style={[rStyles.MusicBox, { backgroundColor: colorList[n%7], borderRadius: 12 }]} key={index}>
+
+                          <View style={[rStyles.MusicBox, { backgroundColor: colorList[n % 7], borderRadius: 12 }]} key={index}>
                             <TouchableOpacity onPress={() => onClickMusic(music.musicId)} style={{ flex: 20, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                               <View>
                                 <ImageBackground source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
