@@ -8,10 +8,12 @@ import rStyles from '../styles/styles'
 import axios from 'axios';
 import * as Hangul from 'hangul-js';
 import { CoreContext, CoreConsumer } from '../context/CoreManagement';
+import YoutubePlayer from 'react-native-youtube-iframe';
 
 
 import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth'
+import { color } from 'react-native-reanimated';
 
 // Oauth
 const colorList = ['#F1BFBF', '#F1D4BF', '#F1E6BF', '#CCF1BF', '#BFF1DF', '#BFD0F1', '#CFBFF1']
@@ -63,7 +65,6 @@ const ColorDragDrop = (props: any) => {
 	const [selectNumber, setSelectNumber] = useState(0)
 	const [deleteModal, setDeleteModal] = useState(true)
 	const [deleteInPlaylist, setDeleteInPlaylist] = useState(false)
-	const [playingPlaylist, setPlayingPlaylist] = useState(false)
 	const [selectAll, SetSelectAll] = useState(false)
 	const [newPlaylistModal, setNewPlaylistModal] = useState(false)
 	const [addMusicModal, setAddMusicModal] = useState(false)
@@ -71,6 +72,22 @@ const ColorDragDrop = (props: any) => {
 	const [newPlaylistName, setNewPlaylistName] = useState('새로운 플레이리스트')
 	const [newPlaylistIds, setNewPlaylistIds] = useState([])
 	const [addNewMusic, setAddNewMusic] = useState([{ "musicArtist": ["버스커 버스커"], "musicId": 4, "musicImage": null, "musicTitle": "벚꽃 엔딩" }, { "musicArtist": ["폴킴"], "musicId": 7, "musicImage": null, "musicTitle": "너를 만나" }])
+	const [playmodalVisible, setPlayModalVisible] = useState(false);
+	const [rMusicList, setRMusicList] = useState(['null']);
+	const [musicInfo, setMusicInfo] = useState<any>(['null'])
+	const [deleteMusicModal, setDeleteMusicModal] = useState(false)
+	const [deletePlaylistModal,setDeletePlaylistModal] = useState(false)
+
+	function onClickMusic(music_id: number) {
+		axios
+			.get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/music/stream/${userId}/${music_id}`).
+			then((response) => {
+				setMusicInfo(response.data);
+			}).catch(error => {
+				console.log(error.config)
+			});
+		setPlayModalVisible(true)
+	}
 
 	const playlist = ['나만의 플레이리스트', '신나는 음악', '드라이브', '드라이브 ']
 
@@ -113,6 +130,14 @@ const ColorDragDrop = (props: any) => {
 		})
 		setSelectMusic(copy);
 		console.log(addIdList)
+	}
+	const unselectAll = () => {
+		let copy = selectMusic;
+		copy.map((flag, index) => {
+			copy[index] = false
+		})
+		setSelectMusic(copy);
+		setSelectNumber(0);
 	}
 
 	const deleteMusic = () => {
@@ -159,6 +184,19 @@ const ColorDragDrop = (props: any) => {
 
 
 
+	}, []
+
+	)
+	useEffect(() => {
+
+		axios
+			.get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/main/${userId}`)
+			.then((response) => {
+				setRMusicList(response.data["recommendMusicList"]);
+				setPMusicList(response.data["playedMusicList"]);
+			}).catch(error => {
+				console.log(error.config)
+			})
 	}, []
 	)
 
@@ -297,6 +335,199 @@ const ColorDragDrop = (props: any) => {
 		<CoreConsumer>
 			{({ value, image, name, SetValue, SetName }) => (
 				<View>
+					{/* 플레이리스트 삭제 모달 */}
+					<Modal
+						animationType='none'
+						transparent={true}
+						visible={deletePlaylistModal}
+						onRequestClose={() => {
+							setDeletePlaylistModal(false)}}
+					>
+						<ScrollView style={{ height: '100%', width: '100%', backgroundColor: 'white', padding: 30 }}>
+							<View style={{ flexDirection: 'row', alignItems: 'center' , marginBottom:15}}>
+								<Text style={{ fontSize: 25, fontWeight: 'bold' }}>나의 플레이스트</Text>
+								<TouchableOpacity onPress={()=>{setDeletePlaylistModal(false)}} style={{ marginLeft: '42%' }}>
+									<Text style={{ fontSize: 17, color: 'black' }}>완료</Text>
+								</TouchableOpacity>
+							</View>
+							<View style={{ alignItems: 'center', justifyContent: 'center' }}>
+								{playlist.map((list, index) => (
+									<TouchableOpacity onPress={() => { setPlaylistSetting(!playlistSetting) }}
+										style={{ padding: 9, flexDirection: 'row', height: 125, backgroundColor: colorList[(index + 4) % 7], borderRadius: 12, width: '100%', marginVertical: 10, }} key={list}>
+										<View>
+											<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }} style={{ height: '100%', aspectRatio: 1, borderRadius: 20, opacity: 0.25 }} />
+										</View>
+										<View style={{ padding: 10, width: '100%' }}>
+											<View style={{ marginLeft: 5 }}>
+												<Text style={{ fontSize: 20, color: '#454545', fontWeight: 'bold' }}>{list}</Text>
+												<Text style={{ fontSize: 15, color: '#454545', fontWeight: 'bold' }}>2022. 08. 17</Text>
+											</View>
+										</View>
+									</TouchableOpacity>
+								))}
+							</View>
+						</ScrollView>
+					</Modal>
+					{/* 플레이리스트 내 음악 삭제 모달 */}
+					<Modal
+						animationType='none'
+						transparent={true}
+						visible={deleteMusicModal}
+						onRequestClose={() => { setDeleteMusicModal(false); unselectAll() }}
+					>
+						<View style={{ flex: 9 }}>
+							<ScrollView style={{ backgroundColor: 'white', width: '100%', padding: 30 }}>
+								<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+									<Text style={{ fontSize: 25, fontWeight: 'bold' }}>플레이스트</Text>
+									<View style={{ width: '100%', alignItems: 'flex-end', position: 'absolute', padding: 15 }}>
+										<TouchableOpacity onPress={() => { setDeleteMusicModal(false); setDeleteModal(true); unselectAll() }}>
+											<Text style={{ color: 'black', fontSize: 17 }}>완료</Text>
+										</TouchableOpacity>
+									</View>
+								</View>
+								{!selectAll ?
+									<TouchableOpacity onPress={() => {
+										let copy = selectMusic;
+										copy.map((flag, index) => {
+											copy[index] = true
+										})
+										setSelectMusic(copy);
+										setSelectNumber(pMusicList.length);
+										setDeleteModal(false);
+										SetSelectAll(true)
+									}} style={{ marginVertical: 15, flexDirection: 'row', alignItems: 'center' }}>
+										<Icon name='check' size={20} color={'black'}></Icon>
+										<Text style={{ fontSize: 17, color: 'black' }}> 전체 선택</Text>
+									</TouchableOpacity>
+									:
+									<TouchableOpacity onPress={() => {
+										let copy = selectMusic;
+										copy.map((flag, index) => {
+											copy[index] = false
+										})
+										setSelectMusic(copy);
+										setSelectNumber(0);
+										setDeleteModal(true);
+										SetSelectAll(false)
+									}} style={{ marginVertical: 15, flexDirection: 'row', alignItems: 'center' }}>
+										<Icon name='check' size={20} color={'green'}></Icon>
+										<Text style={{ fontSize: 17, color: 'green' }}> 선택 해제</Text>
+									</TouchableOpacity>
+								}
+								<View style={{}}>
+									{pMusicList.map((music, index) => {
+										return (
+											<View key={index} style={{ height: 90, marginVertical: 1 }}>
+												<Pressable style={{
+													width: 375, height: 80, padding: 4, marginVertical: 5, marginRight: 30,
+													backgroundColor: colorList[index % 7], alignItems: 'center', flexDirection: 'row', borderRadius: 15
+												}}
+													onPress={() => {
+														let copy = selectMusic; copy[index] = !selectMusic[index]; setSelectMusic(copy);
+														setSelectNumber(selectMusic.filter(x => x != false).length);
+														setDeleteModal(false);
+													}}
+												>
+													<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
+														style={{ height: 70, width: 70, marginRight: 0, opacity: 0.3 }} borderRadius={12} />
+													<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${music.musicId}.jpg` }}
+														style={{ height: 70, width: 70, borderColor: 'white', marginLeft: 4, borderWidth: 1, borderRadius: 12, position: 'absolute' }} />
+													<View style={{ width: 230 }}>
+														<Text style={{ color: '#454545', marginLeft: 10, fontSize: 17, fontWeight: 'bold' }} numberOfLines={1} ellipsizeMode="tail">{music.musicTitle}</Text>
+														<Text style={{ color: '#454545', marginLeft: 10, marginTop: 2, fontSize: 15 }} numberOfLines={1} ellipsizeMode="tail">{music.musicArtist}</Text>
+													</View>
+													<View style={{ marginRight: 5, flex: 1, marginLeft: 5 }}><Icon name="play" color='#626262' size={0} /></View>
+													<View style={{ width: '102%', height: 90, position: 'absolute' }}>
+														{!selectMusic[index] ?
+															<View style={{ position: 'absolute', width: '100%', height: '100%' }
+															} /> :
+															<View style={{ backgroundColor: 'rgba(50,50,50,0.25)', position: 'absolute', width: '100%', height: '100%', borderRadius: 12 }
+															} />
+														}
+													</View>
+												</Pressable>
+											</View>
+										)
+									})}
+								</View>
+							</ScrollView>
+						</View>
+						{deleteModal ? <View></View> :
+							<TouchableOpacity onPress={() => { setDeleteInPlaylist(true); SetSelectAll(false) }} style={{ flex: 1, borderColor: 'gray', borderWidth: 1, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
+								<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+									<View style={{ backgroundColor: colorList[selectNumber % 7], alignItems: 'center', justifyContent: 'center', width: 25, aspectRatio: 1, borderRadius: 100 }}><Text style={{ color: 'white', fontSize: 17, fontWeight: 'bold' }}>{selectNumber}</Text></View>
+									<Text style={{ fontSize: 17 }}>  삭제    </Text>
+								</View>
+							</TouchableOpacity>
+						}
+					</Modal>
+					{/* 스트리밍 창 */}
+					<Modal
+						animationType="slide"
+						transparent={false}
+						visible={playmodalVisible}
+						onRequestClose={() => {
+							setPlayModalVisible(!playmodalVisible);
+						}}
+					>
+						<ScrollView>
+							<View style={{ paddingTop: 20 }}>
+								<View style={{ paddingHorizontal: 30, alignItems: 'flex-start' }}>
+									<Text style={{ fontSize: 27, color: 'black', marginTop: 8, fontWeight: 'bold' }} numberOfLines={1} ellipsizeMode="tail">{musicInfo.musicTitle}</Text>
+									<Text style={{ fontSize: 18, color: 'black', marginTop: 8 }} numberOfLines={1} ellipsizeMode="tail">{musicInfo.artist}</Text>
+								</View>
+								<View>
+									<View style={{ marginTop: 35 }}>
+										<YoutubePlayer
+											width={435}
+											height={260}
+											play={true}
+											videoId={musicInfo.youtubeId}
+										/>
+									</View>
+									<View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+										<ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{ flexDirection: 'row', width: '85%' }}>
+											{musicInfo.tagList && musicInfo.tagList.map((tag: any, index: any) => (
+												<View key={index}>
+													<Text style={{ color: 'black', fontSize: 18, margin: 5 }}>#{tag}</Text>
+												</View>
+											))}
+										</ScrollView>
+									</View>
+								</View>
+								<View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', height: 4, marginVertical: 15 }}>
+									<View style={{ backgroundColor: 'gray', width: '88%', height: 3 }}></View>
+								</View>
+								<View style={{ paddingHorizontal: 30, alignItems: 'flex-start' }}>
+									<Text style={{ fontSize: 27, color: 'black', marginTop: 5, fontWeight: 'bold' }}>다음 곡</Text>
+									<ScrollView style={{ paddingHorizontal: 0, paddingVertical: 15 }} horizontal={true} showsHorizontalScrollIndicator={false}>
+										{Array.from(Array(Math.ceil(pMusicList.length * 2 / 5)).keys()).map((n, index) => (
+											<ScrollView key={index} style={{}}>
+												{rMusicList.slice(n * 5, (n + 1) * 5).map((music, index) => {
+													return (
+														<TouchableOpacity key={index} style={{ width: 370, height: 80, padding: 4, marginVertical: 5, marginRight: 30, backgroundColor: colorList[index], alignItems: 'center', flexDirection: 'row', borderRadius: 15 }} onPress={() => onClickMusic(music.musicId)}>
+															<ImageBackground source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
+																style={{ height: '100%', aspectRatio: 1, marginRight: 5 }} borderRadius={12} imageStyle={{ opacity: 0.5 }}>
+																<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${music.musicId}.jpg` }}
+																	style={{ width: '100%', height: '100%', borderColor: 'white', borderWidth: 3, borderRadius: 12 }} />
+															</ImageBackground>
+															<View style={{ width: 230 }}>
+																<Text style={{ color: '#454545', marginLeft: 10, fontSize: 17, fontWeight: 'bold' }} numberOfLines={1} ellipsizeMode="tail">{music.musicTitle}</Text>
+																<Text style={{ color: '#454545', marginLeft: 10, marginTop: 2, fontSize: 15 }} numberOfLines={1} ellipsizeMode="tail">{music.musicArtist}</Text>
+															</View>
+															<View style={{ marginRight: 5, flex: 1, marginLeft: 5 }}><Icon name="play" color='#626262' size={40} /></View>
+														</TouchableOpacity>
+													)
+												})}
+											</ScrollView>))}
+									</ScrollView>
+								</View>
+								<View>
+
+								</View>
+							</View>
+						</ScrollView>
+					</Modal>
 					{/* 음악 정보 모달창 */}
 					<Modal
 						animationType='none'
@@ -311,10 +542,11 @@ const ColorDragDrop = (props: any) => {
 									<View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontSize: 20, fontWeight: 'bold' }}>벚꽃 엔딩</Text></View>
 								</View>
 								<View style={{ alignItems: 'center', flex: 5, justifyContent: 'center' }}>
-									<Text style={{ fontSize: 17, marginVertical: 3 }}>곡 정보</Text>
+									<Text style={{ fontSize: 17, marginVertical: 3 }}>해당 곡을 플레이리스트에서</Text>
 									<Text style={{ fontSize: 17, marginVertical: 3 }}>삭제 하시겠습니까?</Text>
 								</View>
 								<View style={{ flexDirection: 'row', width: '100%', flex: 3, justifyContent: 'center', alignItems: 'center', borderTopWidth: 1, borderColor: '#d8d8d8' }}>
+									<TouchableOpacity onPress={() => { setMusicInfoModal(false) }} style={{ justifyContent: 'center', alignItems: 'center', flex: 1, borderRightWidth: 0.5, borderColor: '#d8d8d8' }}><Text style={{ fontSize: 17, color: 'red' }}>삭제</Text></TouchableOpacity>
 									<TouchableOpacity onPress={() => { setMusicInfoModal(false) }} style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}><Text style={{ fontSize: 17 }}>닫기</Text></TouchableOpacity>
 								</View>
 							</View>
@@ -327,6 +559,7 @@ const ColorDragDrop = (props: any) => {
 						visible={addMusicModal}
 						onRequestClose={() => {
 							setAddMusicModal(!addMusicModal);
+							unselectAll()
 						}}>
 						<View style={{ backgroundColor: 'white', width: '100%', height: '100%', padding: 30 }}>
 							<View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
@@ -378,6 +611,7 @@ const ColorDragDrop = (props: any) => {
 						visible={newPlaylistModal}
 						onRequestClose={() => {
 							setNewPlaylistModal(!newPlaylistModal);
+							unselectAll()
 						}}
 					>
 						<View style={{ backgroundColor: 'white', width: '100%', height: '100%', padding: 30 }}>
@@ -456,112 +690,6 @@ const ColorDragDrop = (props: any) => {
 							</ScrollView>
 						</View>
 					</Modal>
-					{/* 플레이리스트 안의 음악 */}
-					<Modal
-						animationType='none'
-						transparent={true}
-						visible={playingPlaylist}
-						onRequestClose={() => {
-							setPlayingPlaylist(!playingPlaylist);
-							setDeleteModal(true)
-						}}
-					>
-						<View style={{ flex: 9 }}>
-							<ScrollView style={{ backgroundColor: 'white', width: '100%', padding: 30 }}>
-								<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-									<Text style={{ fontSize: 25, fontWeight: 'bold' }}>플레이리스트</Text>
-									<View style={{ width: '100%', alignItems: 'flex-end', position: 'absolute', padding: 15 }}>
-										<TouchableOpacity onPress={() => { setPlaylistSetting(!playlistSetting) }}>
-											<Icon name='chevron-left' size={0} />
-										</TouchableOpacity>
-									</View>
-								</View>
-								{!selectAll ?
-									<TouchableOpacity onPress={() => {
-										let copy = selectMusic;
-										copy.map((flag, index) => {
-											copy[index] = true
-										})
-										setSelectMusic(copy);
-										setSelectNumber(pMusicList.length);
-										setDeleteModal(false);
-										SetSelectAll(true)
-									}} style={{ marginVertical: 15, flexDirection: 'row', alignItems: 'center' }}>
-										<Icon name='check' size={20} color={'black'}></Icon>
-										<Text style={{ fontSize: 17, color: 'black' }}> 전체 선택</Text>
-									</TouchableOpacity>
-									:
-									<TouchableOpacity onPress={() => {
-										let copy = selectMusic;
-										copy.map((flag, index) => {
-											copy[index] = false
-										})
-										setSelectMusic(copy);
-										setSelectNumber(0);
-										setDeleteModal(true);
-										SetSelectAll(false)
-									}} style={{ marginVertical: 15, flexDirection: 'row', alignItems: 'center' }}>
-										<Icon name='check' size={20} color={'green'}></Icon>
-										<Text style={{ fontSize: 17, color: 'green' }}> 선택 해제</Text>
-									</TouchableOpacity>
-								}
-								<View style={{}}>
-									{pMusicList.map((music, index) => {
-										return (
-											<View key={index} style={{ height: 90, marginVertical: 1 }}>
-												<Pressable onLongPress={() => { setMusicInfoModal(true) }} style={{ width: 375, height: 80, padding: 4, marginVertical: 5, marginRight: 30, backgroundColor: colorList[index % 7], alignItems: 'center', flexDirection: 'row', borderRadius: 15 }} onPress={() => {
-													let copy = selectMusic; copy[index] = !selectMusic[index]; setSelectMusic(copy);
-													setSelectNumber(selectMusic.filter(x => x != false).length);
-													setDeleteModal(false);
-												}} >
-													<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
-														style={{ height: 70, width: 70, marginRight: 0, opacity: 0.3 }} borderRadius={12} />
-													<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${music.musicId}.jpg` }}
-														style={{ height: 70, width: 70, borderColor: 'white', marginLeft: 4, borderWidth: 1, borderRadius: 12, position: 'absolute' }} />
-													<View style={{ width: 230 }}>
-														<Text style={{ color: '#454545', marginLeft: 10, fontSize: 17, fontWeight: 'bold' }} numberOfLines={1} ellipsizeMode="tail">{music.musicTitle}</Text>
-														<Text style={{ color: '#454545', marginLeft: 10, marginTop: 2, fontSize: 15 }} numberOfLines={1} ellipsizeMode="tail">{music.musicArtist}</Text>
-													</View>
-													<View style={{ marginRight: 5, flex: 1, marginLeft: 5 }}><Icon name="play" color='#626262' size={40} /></View>
-													<View style={{ width: '102%', height: 90, position: 'absolute' }}>
-														{!selectMusic[index] ?
-															<View style={{ position: 'absolute', width: '100%', height: '100%' }
-															} /> :
-															<View style={{ backgroundColor: 'rgba(50,50,50,0.25)', position: 'absolute', width: '100%', height: '100%', borderRadius: 12 }
-															} />
-														}
-													</View>
-												</Pressable>
-											</View>
-										)
-									})}
-								</View>
-							</ScrollView>
-						</View>
-						{deleteModal ? <View style={{ backgroundColor: 'white' }}></View> :
-							<View style={{ flex: 1, borderColor: 'gray', borderWidth: 1, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
-								<View style={{ width: '100%', height: '100%', position: 'absolute' }}>
-									<View style={{ margin: 10, width: 20, height: 20, backgroundColor: colorList[selectNumber % 7], position: 'absolute', borderRadius: 100, alignItems: 'center', justifyContent: 'center' }}>
-										<Text style={{ color: 'white', fontWeight: 'bold' }}>{selectNumber}</Text>
-									</View>
-								</View>
-								<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-									<TouchableOpacity style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-										<Icon name='play' size={30} color={'gray'} />
-										<Text>재생</Text>
-									</TouchableOpacity>
-									<TouchableOpacity style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-										<Icon name='plus' size={30} color={'gray'} />
-										<Text>담기</Text>
-									</TouchableOpacity>
-									<TouchableOpacity style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-										<Icon name='trash-can' size={27} color={'gray'} />
-										<Text>삭제</Text>
-									</TouchableOpacity>
-								</View>
-							</View>
-						}
-					</Modal>
 					{/* 삭제 안내 모달 */}
 					<Modal
 						animationType='none'
@@ -609,52 +737,21 @@ const ColorDragDrop = (props: any) => {
 								<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 									<Text style={{ fontSize: 25, fontWeight: 'bold' }}>플레이스트</Text>
 									<View style={{ width: '100%', alignItems: 'flex-end', position: 'absolute', padding: 15 }}>
-										<TouchableOpacity onPress={() => { setPlaylistSetting(!playlistSetting) }}>
-											<Icon name='chevron-left' size={25} />
+										<TouchableOpacity onPress={() => { setDeleteMusicModal(true) }}>
+											<Text style={{ color: 'green', fontSize: 17 }}>편집</Text>
 										</TouchableOpacity>
 									</View>
 								</View>
-								<TouchableOpacity onPress={() => { setAddMusicModal(true) }} style={{ marginTop: 15, flexDirection: 'row', alignItems: 'center' }}>
+								<TouchableOpacity onPress={() => { setAddMusicModal(true) }} style={{ marginVertical: 15, flexDirection: 'row', alignItems: 'center', width: 200 }}>
 									<Icon name='plus-circle-outline' size={20}></Icon>
 									<Text style={{ fontSize: 17 }}>   새로운 곡 추가하기</Text>
 								</TouchableOpacity>
-								{!selectAll ?
-									<TouchableOpacity onPress={() => {
-										let copy = selectMusic;
-										copy.map((flag, index) => {
-											copy[index] = true
-										})
-										setSelectMusic(copy);
-										setSelectNumber(pMusicList.length);
-										setDeleteModal(false);
-										SetSelectAll(true)
-									}} style={{ marginVertical: 15, flexDirection: 'row', alignItems: 'center' }}>
-										<Icon name='check' size={20} color={'black'}></Icon>
-										<Text style={{ fontSize: 17, color: 'black' }}> 전체 선택</Text>
-									</TouchableOpacity>
-									:
-									<TouchableOpacity onPress={() => {
-										let copy = selectMusic;
-										copy.map((flag, index) => {
-											copy[index] = false
-										})
-										setSelectMusic(copy);
-										setSelectNumber(0);
-										setDeleteModal(true);
-										SetSelectAll(false)
-									}} style={{ marginVertical: 15, flexDirection: 'row', alignItems: 'center' }}>
-										<Icon name='check' size={20} color={'green'}></Icon>
-										<Text style={{ fontSize: 17, color: 'green' }}> 선택 해제</Text>
-									</TouchableOpacity>
-								}
 								<View style={{}}>
 									{pMusicList.map((music, index) => {
 										return (
 											<View key={index} style={{ height: 90, marginVertical: 1 }}>
-												<Pressable style={{ width: 375, height: 80, padding: 4, marginVertical: 5, marginRight: 30, backgroundColor: colorList[index % 7], alignItems: 'center', flexDirection: 'row', borderRadius: 15 }} onPress={() => {
-													let copy = selectMusic; copy[index] = !selectMusic[index]; setSelectMusic(copy);
-													setSelectNumber(selectMusic.filter(x => x != false).length);
-													setDeleteModal(false);
+												<Pressable onPress={() => { onClickMusic(music.musicId) }} style={{ width: 375, height: 80, padding: 4, marginVertical: 5, marginRight: 30, backgroundColor: colorList[index % 7], alignItems: 'center', flexDirection: 'row', borderRadius: 15 }} onLongPress={() => {
+													setMusicInfoModal(true)
 												}} >
 													<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
 														style={{ height: 70, width: 70, marginRight: 0, opacity: 0.3 }} borderRadius={12} />
@@ -664,7 +761,7 @@ const ColorDragDrop = (props: any) => {
 														<Text style={{ color: '#454545', marginLeft: 10, fontSize: 17, fontWeight: 'bold' }} numberOfLines={1} ellipsizeMode="tail">{music.musicTitle}</Text>
 														<Text style={{ color: '#454545', marginLeft: 10, marginTop: 2, fontSize: 15 }} numberOfLines={1} ellipsizeMode="tail">{music.musicArtist}</Text>
 													</View>
-													<View style={{ marginRight: 5, flex: 1, marginLeft: 5 }}><Icon name="dots-vertical" color='#626262' size={40} /></View>
+													<View style={{ marginRight: 5, flex: 1, marginLeft: 5 }}><Icon name="play" color='#626262' size={40} /></View>
 													<View style={{ width: '102%', height: 90, position: 'absolute' }}>
 														{!selectMusic[index] ?
 															<View style={{ position: 'absolute', width: '100%', height: '100%' }
@@ -680,14 +777,6 @@ const ColorDragDrop = (props: any) => {
 								</View>
 							</ScrollView>
 						</View>
-						{deleteModal ? <View></View> :
-							<TouchableOpacity onPress={() => { setDeleteInPlaylist(true); SetSelectAll(false) }} style={{ flex: 1, borderColor: 'gray', borderWidth: 1, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
-								<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-									<View style={{ backgroundColor: colorList[selectNumber % 7], alignItems: 'center', justifyContent: 'center', width: 25, aspectRatio: 1, borderWidth: 2, borderRadius: 100, borderColor: colorList[selectNumber] }}><Text style={{ color: 'white', fontSize: 17, fontWeight: 'bold' }}>{selectNumber}</Text></View>
-									<Text style={{ fontSize: 17 }}>  삭제    </Text>
-								</View>
-							</TouchableOpacity>
-						}
 					</Modal>
 					{/* 플레이리스트 편집 */}
 					<Modal
@@ -696,13 +785,14 @@ const ColorDragDrop = (props: any) => {
 						visible={showPlaylist}
 						onRequestClose={() => {
 							setShowPlaylist(!showPlaylist);
+							unselectAll()
 						}}
 					>
 						<ScrollView style={{ height: '100%', width: '100%', backgroundColor: 'white', padding: 30 }}>
 							<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-								<Text style={{ fontSize: 25, fontWeight: 'bold' }}>플레이스트 편집</Text>
-								<TouchableOpacity style={{ marginLeft: '42%' }}>
-									<Text style={{ fontSize: 17, color: 'white' }}>편집</Text>
+								<Text style={{ fontSize: 25, fontWeight: 'bold' }}>나의 플레이스트</Text>
+								<TouchableOpacity onPress={()=>{setDeletePlaylistModal(true)}} style={{ marginLeft: '42%' }}>
+									<Text style={{ fontSize: 17, color: 'green' }}>편집</Text>
 								</TouchableOpacity>
 							</View>
 							<TouchableOpacity onPress={() => { setNewPlaylistModal(true!) }} style={{ marginVertical: 15, flexDirection: 'row', alignItems: 'center' }}>
@@ -712,16 +802,15 @@ const ColorDragDrop = (props: any) => {
 							<View style={{ alignItems: 'center', justifyContent: 'center' }}>
 								{playlist.map((list, index) => (
 									<TouchableOpacity onPress={() => { setPlaylistSetting(!playlistSetting) }}
-										style={{ padding: 9, flexDirection: 'row', height: 125, backgroundColor: colorList[index % 7], borderRadius: 12, width: '100%', marginVertical: 10, }} key={list}>
+										style={{ padding: 9, flexDirection: 'row', height: 125, backgroundColor: colorList[(index + 4) % 7], borderRadius: 12, width: '100%', marginVertical: 10, }} key={list}>
 										<View>
-											<Image source={require('../images/playlisticon.jpg')} style={{ height: '100%', aspectRatio: 1, borderRadius: 20 }} />
+											<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }} style={{ height: '100%', aspectRatio: 1, borderRadius: 20, opacity: 0.25 }} />
 										</View>
 										<View style={{ padding: 10, width: '100%' }}>
 											<View style={{ marginLeft: 5 }}>
 												<Text style={{ fontSize: 20, color: '#454545', fontWeight: 'bold' }}>{list}</Text>
 												<Text style={{ fontSize: 15, color: '#454545', fontWeight: 'bold' }}>2022. 08. 17</Text>
 											</View>
-											<View style={{ alignItems: 'flex-end', width: '70%' }}><Icon name="dots-vertical" color='#626262' size={40} /></View>
 										</View>
 									</TouchableOpacity>
 								))}
@@ -919,15 +1008,15 @@ const ColorDragDrop = (props: any) => {
 										</View>
 										<View style={{ marginTop: 40, height: 30, width: '100%', position: 'absolute', justifyContent: 'center', alignItems: 'flex-end' }}>
 											<TouchableOpacity onPress={() => { setShowPlaylist(!showPlaylist) }}>
-												<Text style={{ fontSize: 17, color: '#454545' }}>편집</Text>
+												<Icon name='pencil-plus' size={25} color={'#454545'} />
 											</TouchableOpacity>
 										</View>
 									</View>
 									<View style={{ alignItems: 'center', justifyContent: 'center' }}>
 										{playlist.map((list, index) => (
-											<TouchableOpacity onPress={() => { setPlayingPlaylist(true) }} style={{ padding: 9, flexDirection: 'row', height: 125, backgroundColor: colorList[(index + 4) % 7], borderRadius: 12, width: '88%', marginVertical: 10, }} key={list}>
+											<TouchableOpacity onPress={() => { setPlaylistSetting(true) }} style={{ padding: 9, flexDirection: 'row', height: 125, backgroundColor: colorList[(index + 4) % 7], borderRadius: 12, width: '88%', marginVertical: 10, }} key={list}>
 												<View>
-													<Image source={require('../images/playlisticon.jpg')} style={{ height: '100%', aspectRatio: 1, borderRadius: 20 }} />
+													<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }} style={{ height: '100%', aspectRatio: 1, borderRadius: 20, opacity: 0.25 }} />
 												</View>
 												<View style={{ padding: 10, width: '100%' }}>
 													<View style={{ marginLeft: 5 }}>
