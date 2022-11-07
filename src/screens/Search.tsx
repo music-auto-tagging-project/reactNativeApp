@@ -118,7 +118,7 @@ function Search() {
           <Text style={{ fontSize: 27, fontWeight: 'bold', marginTop: 0, marginBottom: 10 }}>{artistModalTitle + '의 곡'}</Text>
           <ScrollView>
             {artistsMusic.map((music, index) => (
-              <TouchableOpacity onPress={() => { onClickMusic(music.musicId) }} key={index} style={{ width: 370, height: 80, padding: 4, marginVertical: 5, marginRight: 30, backgroundColor: colorList[index], alignItems: 'center', flexDirection: 'row', borderRadius: 15 }}>
+              <TouchableOpacity onPress={() => { onClickMusic(music.musicId) }} key={index} style={{ width: '88%', height: 80, padding: 4, marginVertical: 5, marginRight: 30, backgroundColor: colorList[index], alignItems: 'center', flexDirection: 'row', borderRadius: 15 }}>
                 <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
                   style={{ width: 65, height: 65, marginRight: 0, opacity: 0.2 }} borderRadius={12} />
                 <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${music.musicId}.jpg` }}
@@ -158,7 +158,7 @@ function Search() {
                   videoId={musicInfo.youtubeId}
                 />
               </View>
-              <View style={{width:'100%', justifyContent:'center', alignItems:'center'}}>
+              <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                 <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{ flexDirection: 'row', width: '85%' }}>
                   {musicInfo.tagList && musicInfo.tagList.map((tag: any, index: any) => (
                     <View key={index}>
@@ -203,16 +203,22 @@ function Search() {
 
       {/* Search page */}
 
-      <View style={{ backgroundColor: 'white', height: '100%', paddingHorizontal: 20 }}>
+      <View style={{ backgroundColor: 'white', height: '100%' }}>
         <ScrollView showsVerticalScrollIndicator={false} style={rStyles.scrollView} persistentScrollbar={true}>
-          <View style={{ flexDirection: 'row', paddingLeft: 20, paddingTop: 40 }}>
+          <View style={{ flexDirection: 'row', paddingLeft: 20, paddingTop: 35 }}>
             <View style={{ width: 320, height: 25 }}>
               <Text style={{ fontSize: 27, fontWeight: 'bold' }}>검색</Text>
             </View>
           </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: 50, marginTop: 20 }}>
-            <TextInput value={textInput} onTouchStart={() => { setMusicSearchOn(false); find_nm(textInput) }} onChangeText={(nm) => { find_nm(nm); setTextInput(nm) }} placeholder='음악 또는 아티스트 검색' placeholderTextColor='gray' style={{ flex: 1, backgroundColor: '#ECECEC', height: 45, width: '88%', marginHorizontal: 12, color: 'black', fontSize: 17, paddingHorizontal: 15, paddingVertical: 0, borderRadius: 12 }} />
-            <TouchableOpacity onPress={() => searchMusic(textInput)}><Icon name="printer-search" color='black' size={15} style={{ marginRight: 5 }} /></TouchableOpacity>
+          <View style={{alignItems:'center', width:'100%'}}>
+            <View style={{
+              flexDirection: 'row',  alignItems: 'center', height: 50, marginTop: 30,
+              flex: 1, backgroundColor: '#ECECEC', width: '90%',
+              paddingHorizontal: 15, paddingVertical: 0, borderRadius: 12
+            }}>
+              <TextInput value={textInput} onTouchStart={() => { setMusicSearchOn(false); find_nm(textInput) }} onChangeText={(nm) => { find_nm(nm); setTextInput(nm) }} placeholder='음악 또는 아티스트 검색' placeholderTextColor='gray' style={{width:'93%'}} />
+              <TouchableOpacity onPress={() => searchMusic(textInput)}><Icon name="magnify" color='black' size={20} /></TouchableOpacity>
+            </View>
           </View>
           <View style={{ marginTop: 20 }}>
             {musicSearchOn ?
@@ -220,16 +226,16 @@ function Search() {
                 {searchedInfo.musicNameList.length != 0 ?
                   <>
                     <Text style={{ fontSize: 27, fontWeight: 'bold', marginTop: 0, marginBottom: 10 }}>검색 음악</Text>
-                    <View>
+                    <View style={{alignItems:'center', justifyContent:'center',width:'100%'}}>
                       {searchedInfo.musicNameList.slice(0, 7).map((music, index) => (
-                        <TouchableOpacity onPress={() => { onClickMusic(music.musicId) }} key={index} style={{ width: 370, height: 80, padding: 4, marginVertical: 5, marginRight: 30, backgroundColor: colorList[index], alignItems: 'center', flexDirection: 'row', borderRadius: 15 }}>
+                        <TouchableOpacity onPress={() => { onClickMusic(music.musicId) }} key={index} style={{ width: '96%', height: 80, padding: 4, marginVertical: 5, backgroundColor: colorList[index], alignItems: 'center', flexDirection: 'row', borderRadius: 15 }}>
                           <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
                             style={{ width: 65, height: 65, marginRight: 0, opacity: 0.2 }} borderRadius={12} />
                           <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${music.musicId}.jpg` }}
                             style={{ width: 65, height: 65, borderColor: 'white', borderWidth: 3, borderRadius: 12, marginLeft: 4, position: 'absolute' }} />
-                          <View style={{ width: 230 }}>
-                            <Text style={{ color: '#454545', marginLeft: 10, fontSize: 17, fontWeight: 'bold' }} numberOfLines={1} ellipsizeMode="tail">{music.musicTitle}</Text>
-                            <Text style={{ color: '#454545', marginLeft: 10, marginTop: 2, fontSize: 15 }} numberOfLines={1} ellipsizeMode="tail">{'Artist'}</Text>
+                          <View style={{ width: '65%' }}>
+                            <Text style={{ color: 'black', marginLeft: 10, fontSize: 17 }} numberOfLines={1} ellipsizeMode="tail">{music.musicTitle}</Text>
+                            <Text style={{ color: '#454545', marginLeft: 10, marginTop: 2, fontSize: 14 }} numberOfLines={1} ellipsizeMode="tail">{'Artist'}</Text>
                           </View>
                           <View style={{ marginRight: 5, flex: 1, marginLeft: 5 }}><Icon name="play" color='#626262' size={40} /></View>
                         </TouchableOpacity>
@@ -241,15 +247,15 @@ function Search() {
                 {searchedInfo.artistNameList.length != 0 ?
                   <>
                     <Text style={{ fontSize: 27, fontWeight: 'bold', marginTop: 20, marginBottom: 10 }}>아티스트</Text>
-                    <View>
+                    <View style={{alignItems:'center', justifyContent:'center',width:'100%'}}>
                       {searchedInfo.artistNameList.slice(0, 7).map((artist, index) => (
-                        <TouchableOpacity onPress={() => { clickArtistSearched(artist.id) }} key={index} style={{ width: 370, height: 80, padding: 4, marginVertical: 5, marginRight: 30, backgroundColor: colorList[index], alignItems: 'center', flexDirection: 'row', borderRadius: 15 }}>
+                        <TouchableOpacity onPress={() => { clickArtistSearched(artist.id) }} key={index} style={{ width: '96%', height: 80, padding: 4, marginVertical: 5, backgroundColor: colorList[index], alignItems: 'center', flexDirection: 'row', borderRadius: 15 }}>
                           <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
                             style={{ width: 65, height: 65, marginRight: 0, opacity: 0.2 }} borderRadius={12} />
                           <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${999999}.jpg` }}
                             style={{ width: 65, height: 65, borderColor: 'white', borderWidth: 3, marginLeft: 4, borderRadius: 12, position: 'absolute' }} />
-                          <View style={{ width: 230 }}>
-                            <Text style={{ color: '#454545', marginLeft: 10, fontSize: 17, fontWeight: 'bold' }} numberOfLines={1} ellipsizeMode="tail">{artist.name}</Text>
+                          <View style={{ width: '65%' }}>
+                            <Text style={{ color: '#454545', marginLeft: 10, fontSize: 17}} numberOfLines={1} ellipsizeMode="tail">{artist.name}</Text>
                           </View>
                           <View style={{ marginRight: 5, flex: 1, marginLeft: 5 }}><Icon name="dots-vertical" color='#626262' size={40} /></View>
                         </TouchableOpacity>
@@ -260,15 +266,15 @@ function Search() {
                 {searchedInfo.tagList.length != 0 ?
                   <>
                     <Text style={{ fontSize: 27, fontWeight: 'bold', marginTop: 20, marginBottom: 10 }}>관련 태그</Text>
-                    <View>
+                    <View style={{alignItems:'center', justifyContent:'center',width:'100%'}}>
                       {searchedInfo.tagList.map((tag, index) => (
-                        <TouchableOpacity key={index} style={{ width: 370, height: 80, padding: 4, marginVertical: 5, marginRight: 30, backgroundColor: colorList[index], alignItems: 'center', flexDirection: 'row', borderRadius: 15 }}>
+                        <TouchableOpacity key={index} style={{ width: '96%', height: 80, padding: 4, marginVertical: 5, backgroundColor: colorList[index], alignItems: 'center', flexDirection: 'row', borderRadius: 15 }}>
                           <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
                             style={{ width: 65, height: 65, marginRight: 0, opacity: 0.2 }} borderRadius={12} />
                           <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${0}.jpg` }}
                             style={{ width: 65, height: 65, borderColor: 'white', borderWidth: 3, borderRadius: 12, position: 'absolute' }} />
-                          <View style={{ width: 230 }}>
-                            <Text style={{ color: '#454545', marginLeft: 10, fontSize: 17, fontWeight: 'bold' }} numberOfLines={1} ellipsizeMode="tail">{tag}</Text>
+                          <View style={{ width: '65%' }}>
+                            <Text style={{ color: '#454545', marginLeft: 10, fontSize: 17}} numberOfLines={1} ellipsizeMode="tail">{tag}</Text>
                           </View>
                           <View style={{ marginRight: 5, flex: 1, marginLeft: 5 }}><Icon name="dots-vertical" color='#626262' size={40} /></View>
                         </TouchableOpacity>
@@ -281,7 +287,7 @@ function Search() {
               :
               (textInput == '' ?
                 <View>
-                  {recent_search.map((log) => (
+                  {/* {recent_search.map((log) => (
                     <View key={log} style={[{ flexDirection: 'row', height: 55, marginLeft: 20, alignItems: 'center' }]}>
                       <Text style={{ fontSize: 20, width: '75%', color: 'black' }}>
                         {log}
@@ -289,13 +295,13 @@ function Search() {
                       <Text>- - - -    </Text>
                       <Icon name="close" color={'#FF6666'} size={15} style={{ marginRight: 15 }} />
                     </View>
-                  ))}
+                  ))} */}
                 </View>
                 :
                 <View style={{ paddingHorizontal: 20 }}>
                   {searchText.slice(0, 10).map((title, index) => (
                     <TouchableOpacity key={title} onPress={() => { searchMusic(title) }} style={{ height: 55, borderBottomColor: 'rgba(230,230,230,1)', borderBottomWidth: 1.5, justifyContent: 'center' }}>
-                      <Text numberOfLines={1} style={{ fontSize: 20 }}>{title}</Text>
+                      <Text numberOfLines={1} style={{ fontSize: 17 }}>{title}</Text>
                     </TouchableOpacity>
                   )
                   )}
