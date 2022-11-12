@@ -8,7 +8,7 @@ import {
 
 import * as React from 'react';
 import { useState, useEffect, useRef, Component, useContext } from 'react';
-import { Dimensions, RefreshControl, TextInput, Image, ScrollView, TouchableOpacity, Modal, Button } from 'react-native';
+import { Dimensions, RefreshControl, TextInput, Image, ScrollView, TouchableOpacity, Modal, Button, Pressable } from 'react-native';
 import rStyles from '../styles/styles'
 import axios from 'axios';
 import YoutubePlayer from 'react-native-youtube-iframe';
@@ -59,6 +59,8 @@ const ReorderableList = (props) => {
   const [checkTrue, setCheckTrue] = useState([false, false, false, false, false, false, false, false, false])
   const [selectNumber, setSelectNumber] = useState(0)
   const [selectTrue, setSelectTrue] = useState(false)
+  const [allMusicInfo, setAllMusicInfo] = useState([])
+  const [clickedSong, setClickedSong] = useState(new Set())
 
   const { route } = props;
   const { params } = route;
@@ -99,6 +101,28 @@ const ReorderableList = (props) => {
     setSelectNumber(checkTrue.filter(x => x != false).length)
   }
 
+  const selectComplete = async () => {
+
+    const resArray = [];
+    for await (const music_id of clickedSong) {
+      const res = await axios
+        .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/music/stream/${userId}/${music_id}`)
+      resArray.push(res.data);
+    }
+    setSelectTrue(!selectTrue)
+  }
+
+  const clickFavorMusic = (id: string) => {
+    let copy = new Set([...clickedSong])
+    if (clickedSong.has(id)) {
+      copy.delete(id)
+    } else if (!clickedSong.has(id)) {
+      copy.add(id)
+    }
+    setClickedSong(copy)
+    console.log(copy)
+  }
+
   useEffect(() => {
 
     axios
@@ -112,10 +136,22 @@ const ReorderableList = (props) => {
       }).catch(error => {
         console.log(error.config)
       })
-  }, []
+  }, [selectTrue]
   )
 
+  useEffect(() => {
 
+    axios
+      .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/search`)
+      .then((response) => {
+        let allMusicList = response.data['musicNameList']
+        // allMusicList.sort(() => Math.random() - 0.5)
+        setAllMusicInfo(allMusicList);
+      }).catch(error => {
+        console.log(error.config)
+      })
+  }, []
+  )
 
   useEffect(() => {
 
@@ -130,7 +166,7 @@ const ReorderableList = (props) => {
     <CoreConsumer>
       {({ value, name, image, SetValue }) => (
         <View>
-          {/* 선호 아티스트 선택 */}
+          {/* 선호 음악 선택 */}
           <Modal
             animationType="none"
             transparent={false}
@@ -142,34 +178,31 @@ const ReorderableList = (props) => {
                   <Text style={{ fontWeight: 'bold', fontSize: 25 }}>선호 음악 선택</Text>
                 </View>
                 <View style={{ paddingRight: 7 }}>
-                  {[0, 1, 2, 3].map((n, index) => (
+                  {[0, 1, 2, 3, 4, 5, 6, 7].map((n, index) => (
                     <View key={n} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: 2 }}>
-                      {[1, 2, 3, 4, 5, 6, 7, 8].slice(n * 2, (n + 1) * 2).map((m, index2) => (
-                        <View key={m} >
-                          <TouchableOpacity onPress={() => checkBox(m)} style={{
+                      {allMusicInfo.slice(n * 2, (n + 1) * 2).map((music, index2) => (
+                        <View key={index2} >
+                          <TouchableOpacity onPress={() => { clickFavorMusic(music.musicId) }} style={{
                             backgroundColor: colorList[(n + 1) % 7], width: '92%',
                             height: 250, borderRadius: 15, margin: 12, justifyContent: 'center', alignItems: 'center'
                           }}>
                             <View>
-                              <View>
-                                <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
-                                  style={{ width: 165, height: 165, marginRight: 0, opacity: 0.2 }} borderRadius={12} />
-                                <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${m + 15}.jpg` }}
-                                  style={{ width: 165, height: 165, borderColor: 'white', borderWidth: 3, borderRadius: 12, position: 'absolute' }} />
-                              </View>
-                              <View style={{ marginTop: 7, flexDirection: 'row', marginLeft: 10 }}>
-                                <View style={{ flex: 1 }}>
-                                  <Text style={{ fontSize: 18, color: 'black' }} numberOfLines={1} ellipsizeMode="tail">
-                                    {'Music'}
-                                  </Text>
-                                  <Text style={{ fontSize: 15, color: '#454545' }} numberOfLines={1} ellipsizeMode="tail">
-                                    {'장르 - 발라드,랩'}
-                                  </Text>
-                                </View>
+                              <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
+                                style={{ width: 165, height: 165, marginRight: 0, opacity: 0.2 }} borderRadius={12} />
+                              <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${music.musicId}.jpg` }}
+                                style={{ width: 165, height: 165, borderColor: 'white', borderWidth: 3, borderRadius: 12, position: 'absolute' }} />
+                            </View>
+                            <View style={{ marginTop: 7, flexDirection: 'row', marginLeft: 10 }}>
+                              <View style={{ flex: 1 }}>
+                                <Text style={{ fontSize: 17, color: 'black' }} numberOfLines={1} ellipsizeMode="tail">
+                                  {music.musicTitle}
+                                </Text>
+                                <Text style={{ fontSize: 15, color: '#454545' }} numberOfLines={1} ellipsizeMode="tail">
+                                  {'아티스트'}
+                                </Text>
                               </View>
                             </View>
-                            <Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/checkbox.jpg` }} style={checkTrue[m] ? { width: '100%', height: '100%', borderRadius: 12, position: 'absolute', opacity: 0.35, backgroundColor: 'black' } : { width: '100%', height: '100%', borderRadius: 12, position: 'absolute', opacity: 0, backgroundColor: 'black' }}>
-                            </Image>
+                            <Image style={[{ width: '100%', height: '100%', position: 'absolute' }, { opacity: clickedSong.has(music.musicId) ? 0.25 : 0 }]} source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/checkbox.jpg` }} />
                           </TouchableOpacity>
                         </View>
                       ))}
@@ -183,9 +216,9 @@ const ReorderableList = (props) => {
               borderTopColor: 'rgba(200,200,200,0.8)', borderWidth: 1,
             }}>
               <View style={{ position: 'absolute', width: '100%' }}>
-                <Text style={{ fontSize: 17 }}>{selectNumber}개 선택</Text>
+                <Text style={{ fontSize: 17 }}>{clickedSong.size}개 선택</Text>
               </View>
-              <TouchableOpacity onPress={() => setSelectTrue(!selectTrue)} style={{ backgroundColor: colorList[0], borderRadius: 10, paddingVertical: 5, paddingHorizontal: 20 }}><Text style={{ fontSize: 17, fontWeight: 'bold' }}>완료</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => selectComplete()} style={{ backgroundColor: colorList[0], borderRadius: 10, paddingVertical: 5, paddingHorizontal: 20 }}><Text style={{ fontSize: 17, fontWeight: 'bold' }}>완료</Text></TouchableOpacity>
             </View>
           </Modal>
           {/* 스트리밍 창 */}

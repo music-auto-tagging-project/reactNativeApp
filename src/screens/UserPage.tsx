@@ -34,6 +34,7 @@ const ColorDragDrop = (props: any) => {
 				setFixedTag(response.data['fixedTagList']);
 				setUserName(response.data['userName']);
 				setUserImage(response.data['userImage']);
+				setPlaylistInfo(response.data['playlist'])
 			}).catch(error => {
 				console.log(error.config)
 			});
@@ -50,7 +51,7 @@ const ColorDragDrop = (props: any) => {
 	const [userId, setUserId] = useState('3')
 	const [UserImage, setUserImage] = useState('null')
 	const [fixedTag, setFixedTag] = useState<string[]>([]);
-	const [autoTag, setAutoTag] = useState<string[]>(['평화로운', '봄바람']);
+	const [autoTag, setAutoTag] = useState<string[]>([]);
 	const [startText, setStartText] = useState<string[]>([]);
 	const [text_array, setText_Array] = useState(["사랑", "이별", "서정적", "슬픔", "뭉게구름", "따뜻한", "새벽", "감성"])
 	const [inputText, setInputText] = useState('')
@@ -378,7 +379,7 @@ const ColorDragDrop = (props: any) => {
 						<View style={{ flex: 9 }}>
 							<ScrollView style={{ height: '100%', width: '100%', backgroundColor: 'white', paddingTop: 30, paddingHorizontal:20 }}>
 								<View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 0 }}>
-									<Text style={{ fontSize: 25, fontWeight: 'bold', flex:8 }}>나의 플레이스트</Text>
+									<Text style={{ fontSize: 25, fontWeight: 'bold', flex:8 }}>나의 플레이리스트</Text>
 									<TouchableOpacity onPress={() => { setDeletePlaylistModal(false) }} style={{ flex:1 }}>
 										<Text style={{ fontSize: 17, color: 'black' }}>완료</Text>
 									</TouchableOpacity>
@@ -388,7 +389,7 @@ const ColorDragDrop = (props: any) => {
 									<Text style={{ fontSize: 17 }}> 전체 선택</Text>
 								</TouchableOpacity>
 								<View style={{ alignItems: 'center', justifyContent: 'center' }}>
-									{playlist.map((list, index) => (
+									{playlistInfo.map((list, index) => (
 										<View key={index} style={{ flexDirection: 'row' }}>
 											<BouncyCheckbox
 												size={30}
@@ -405,8 +406,8 @@ const ColorDragDrop = (props: any) => {
 												</View>
 												<View style={{ padding: 10, width: '100%' }}>
 													<View style={{ marginLeft: 5 }}>
-														<Text style={{ fontSize: 17, color: 'black'}} numberOfLines={1} ellipsizeMode="tail">{list}</Text>
-														<Text style={{ fontSize: 15, color: '#454545' }}  numberOfLines={1} ellipsizeMode="tail">2022. 08. 17</Text>
+														<Text style={{ fontSize: 17, color: 'black'}} numberOfLines={1} ellipsizeMode="tail">{'플레이리스트_'+ list.id}</Text>
+														<Text style={{ fontSize: 15, color: '#454545' }}  numberOfLines={1} ellipsizeMode="tail">2022-11</Text>
 													</View>
 												</View>
 											</TouchableOpacity>
@@ -431,7 +432,7 @@ const ColorDragDrop = (props: any) => {
 						animationType='none'
 						transparent={true}
 						visible={deleteMusicModal}
-						onRequestClose={() => { setDeleteMusicModal(false); unselectAll() }}
+						onRequestClose={() => { setDeleteMusicModal(false)}}
 					>
 						<View style={{ flex: 9 }}>
 							<ScrollView style={{ backgroundColor: 'white', width: '100%', padding: 30 }}>
@@ -448,7 +449,7 @@ const ColorDragDrop = (props: any) => {
 										<Text style={{ fontSize: 17, color: 'black' }}> 전체 선택</Text>
 									</TouchableOpacity>
 								<View style={{}}>
-									{pMusicList.map((music, index) => {
+									{clickedPlaylist.map((music, index) => {
 										return (
 											<View key={index} style={{ flexDirection: 'row' }}>
 												<BouncyCheckbox
@@ -456,7 +457,7 @@ const ColorDragDrop = (props: any) => {
 													fillColor={colorList[(index) % 7]}
 													unfillColor="#FFFFFF"
 													iconStyle={{ borderColor: colorList[(index) % 7] }}
-													onPress={(isChecked: boolean) => { checkSongController(isChecked, music.musicId) }}
+													onPress={(isChecked: boolean) => { checkSongController(isChecked, music.id) }}
 													style={{ flex: 1 }}
 												/>
 												<View style={{ height: 90, marginVertical: 1, flex: 8 }}>
@@ -466,11 +467,11 @@ const ColorDragDrop = (props: any) => {
 													}}>
 														<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
 															style={{ height: 70, width: 70, marginRight: 0, opacity: 0.3 }} borderRadius={12} />
-														<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${music.musicId}.jpg` }}
+														<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${music.id}.jpg` }}
 															style={{ height: 70, width: 70, borderColor: 'white', marginLeft: 4, borderWidth: 1, borderRadius: 12, position: 'absolute' }} />
-														<View style={{}}>
-															<Text style={{ color: '#454545', marginLeft: 10, fontSize: 17, fontWeight: 'bold' }} numberOfLines={1} ellipsizeMode="tail">{music.musicTitle}</Text>
-															<Text style={{ color: '#454545', marginLeft: 10, marginTop: 2, fontSize: 15 }} numberOfLines={1} ellipsizeMode="tail">{music.musicArtist}</Text>
+														<View style={{width:'75%'}}>
+															<Text style={{ color: '#454545', marginLeft: 10, fontSize: 17 }} numberOfLines={1} ellipsizeMode="tail">{music.title}</Text>
+															<Text style={{ color: '#454545', marginLeft: 10, marginTop: 2, fontSize: 15 }} numberOfLines={1} ellipsizeMode="tail">{music.artistList[0].name}</Text>
 														</View>
 													</View>
 												</View>
@@ -788,7 +789,7 @@ const ColorDragDrop = (props: any) => {
 												}} >
 													<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }}
 														style={{ height: 70, width: 70, marginRight: 0, opacity: 0.3 }} borderRadius={12} />
-													<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${music.musicId}.jpg` }}
+													<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${music.id}.jpg` }}
 														style={{ height: 70, width: 70, borderColor: 'white', marginLeft: 4, borderWidth: 1, borderRadius: 12, position: 'absolute' }} />
 													<View style={{ flex:6 }}>
 														<Text style={{ color: 'black', marginLeft: 10, fontSize: 17 }} numberOfLines={1} ellipsizeMode="tail">{music.title}</Text>
@@ -1053,7 +1054,7 @@ const ColorDragDrop = (props: any) => {
 											style={{ padding: 9, flexDirection: 'row', height: 125, backgroundColor: colorList[(index + 4) % 7], 
 											borderRadius: 12, width: '90%', marginVertical: 10, }} key={index}>
 												<View>
-													<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_default.png` }} style={{ height: '100%', aspectRatio: 1, borderRadius: 20, opacity: 0.25 }} />
+													<Image source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/music_images/music_id_${index+1}.jpg` }} style={{ height: '100%', aspectRatio: 1, borderRadius: 20, opacity: 1, borderColor:'white', borderWidth:2 }} />
 												</View>
 												<View style={{ padding: 10, width: '100%' }}>
 													<View style={{ marginLeft: 5 }}>
