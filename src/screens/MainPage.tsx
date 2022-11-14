@@ -289,51 +289,7 @@ const ReorderableList = (props) => {
             </ScrollView>
           </Modal>
 
-          {/* 태그 기반 추천 음악 Page */}
-
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={mainTagModalVisible}
-            onRequestClose={() => {
-              setMainTagModalVisible(!mainTagModalVisible);
-            }}
-          >
-            <View style={[rStyles.centeredView, { backgroundColor: 'black' }]}>
-              <View style={{ flex: 1, height: 60, justifyContent: 'center' }}>
-                <View style={{ paddingRight: 270, flexDirection: 'row' }}>
-                  <TouchableOpacity onPress={() => setMainTagModalVisible(!mainTagModalVisible)}>
-                    <View style={{}}><Image source={require('../images/magician.jpg')} style={rStyles.Logo} /></View>
-                  </TouchableOpacity>
-                  <View style={{ marginTop: 5 }}><Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>Music App</Text></View>
-                </View>
-              </View>
-              <View style={{ flex: 11, alignItems: 'flex-start' }}>
-                <View style={rStyles.MusicContainer}>
-                  <Text style={{ fontWeight: 'bold', marginBottom: 40, marginTop: 40, fontSize: 25, color: 'white' }}>{recTag} - 연관 추천 음악!</Text>
-
-                  {rMusicList.slice(0, 8).map((music: any, index) => (
-                    <View style={[rStyles.MusicBox, { flexDirection: 'row' }]} key={index}>
-                      <TouchableOpacity>
-                        <Image source={{ uri: `data:image/jpeg;base64,${music.musicImage}` }} style={[rStyles.MusicStyle, { marginRight: 20 }]} />
-                      </TouchableOpacity>
-                      <View style={{ flex: 7 }}>
-                        <Text style={{ fontSize: 17, color: 'white' }}>
-                          {music.musicTitle}
-                        </Text>
-                        <Text style={{ fontSize: 17, color: 'gray' }}>
-                          {music.musicId}
-                        </Text>
-                      </View>
-                      <View style={{ flex: 0.4 }}>
-                        <Image source={require('../images/more.png')} style={{ opacity: 0.5, marginTop: 5, width: 15, height: 15 }} />
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            </View>
-          </Modal>
+          
           {/* 메인 페이지 */}
           <ScrollView showsVerticalScrollIndicator={false} style={rStyles.scrollView} persistentScrollbar={true}
             refreshControl={
@@ -349,11 +305,7 @@ const ReorderableList = (props) => {
                 <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={{ backgroundColor: 'white', flex: 1, width: '85%', height: 30 }}>
                   <View style={{ flexDirection: 'row' }}>
                     {backValue && backValue.map((tag, index) => (
-                      <TouchableOpacity key={index} onPress={() => {
-                        setMainTagModalVisible(!mainTagModalVisible)
-                        setRecTag(tag)
-                      }
-                      }>
+                      <TouchableOpacity key={index}>
                         <View style={{ marginRight: 10 }}>
                           <Text style={{ fontSize: 17, color: "black" }}>
                             #{tag}

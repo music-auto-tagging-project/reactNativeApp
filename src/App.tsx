@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState, useEffect, useRef, Component, useContext, useCallback } from 'react';
-import { TextInput, Image, ScrollView, Modal, Animated, ImageBackground, StatusBar, View, Text, Pressable, TouchableOpacity } from 'react-native';
+import { TextInput, Image, ScrollView, Modal, Animated, ImageBackground, StatusBar, View, Text, Pressable, TouchableOpacity, Dimensions } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
@@ -28,6 +28,9 @@ const MyTheme: any = {
 };
 
 const App = () => {
+
+	const windowWidth = Dimensions.get('window').width;
+	const windowHeight = Dimensions.get('window').height;
 	const result = useContext(CoreContext);
 
 	const [userInfo, setUserInfo] = useState({})
@@ -38,9 +41,10 @@ const App = () => {
 
 	const onGoogleButtonPress = async () => {
 		try {
-		const { idToken } = await GoogleSignin.signIn();
-		const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-		return auth().signInWithCredential(googleCredential); } catch (error) {
+			const { idToken } = await GoogleSignin.signIn();
+			const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+			return auth().signInWithCredential(googleCredential);
+		} catch (error) {
 			console.log(error)
 		}
 	}
@@ -110,23 +114,17 @@ const App = () => {
 							</NavigationContainer>
 						</>
 						:
-						<View style={[{ height: '100%', justifyContent: "flex-start", }]}>
+						<View style={[{ height: '100%', justifyContent: "center", backgroundColor: 'white' }]}>
 							<View style={{ justifyContent: 'center', alignItems: 'center' }}>
-								<View style={{ height: 150 }}></View>
-								<View style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-									<TextInput style={{ marginBottom: 25, paddingLeft: 15, width: '77%', backgroundColor: '#F7F8F9', height: 55, borderColor: '#E0E1E2', borderWidth: 1, borderRadius: 10, fontSize: 18 }} placeholder='아이디' placeholderTextColor='#CECED1'></TextInput>
-									<TextInput secureTextEntry={true} style={{ paddingLeft: 15, width: '77%', backgroundColor: '#F7F8F9', height: 55, borderColor: '#E0E1E2', borderWidth: 1, borderRadius: 10, fontSize: 18 }} placeholder='비밀번호' placeholderTextColor='#CECED1'></TextInput>
-									<View style={{ alignItems: 'flex-end', width: '100%', marginTop: 70, marginBottom: 40, paddingRight: 50 }}><Text style={{ color: '#6B8BDE' }}>비밀번호 재설정</Text></View>
-								</View>
-								<View style={{ width: '100%', alignItems: 'center' }}>
-									<TouchableOpacity style={{ width: '77%', backgroundColor: '#F1BFBF', height: 55, borderRadius: 10, marginBottom: 8, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 18, color: 'white', fontWeight: 'bold' }}>로그인</Text></TouchableOpacity>
-									<TouchableOpacity onPress={() => { onGoogleButtonPress() }} style={{ flexDirection: 'row', width: '77%', borderColor: '#E8E9EA', borderWidth: 2, height: 55, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
-										<Image source={require('./images/google-logo-thumbnail.png')} style={{ height: 35, width: 35, marginRight: 5 }}></Image>
-										<Text style={{ fontSize: 18, color: 'black', fontWeight: 'bold' }}>구글 계정으로 로그인</Text>
-									</TouchableOpacity>
-									<View style={{ flexDirection: 'row', marginTop: 35 }}>
-										<Text>아직 계정이 없으신가요?</Text>
-										<TouchableOpacity style={{ marginLeft: 10 }}><Text style={{ fontWeight: 'bold' }}>회원가입</Text></TouchableOpacity>
+								<View style={{ justifyContent: 'center', alignItems: 'center', width:'100%'}}>
+									<Image source={require('./images/logo.png')} style={{ width: windowWidth * 0.56, height: windowWidth * 0.28, backgroundColor: 'black' }} />
+									<Image source={require('./images/logoText.png')} style={{ width: windowWidth * 0.8, height: windowWidth * 0.08, marginTop: 30 }}></Image>
+									<View style={{ width: '100%', alignItems: 'center' }}>
+										<View style={{ height: '50%' }}></View>
+										<TouchableOpacity onPress={() => { onGoogleButtonPress() }} style={{ flexDirection: 'row', width: '77%', borderColor: '#E8E9EA', borderWidth: 2, height: 55, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
+											<Image source={require('./images/google-logo-thumbnail.png')} style={{ height: 35, width: 35, marginRight: 5 }}></Image>
+											<Text style={{ fontSize: 18, color: 'black', fontWeight: 'bold' }}>구글 계정으로 로그인</Text>
+										</TouchableOpacity>
 									</View>
 								</View>
 							</View>
