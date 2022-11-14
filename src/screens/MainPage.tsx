@@ -178,7 +178,7 @@ const ReorderableList = (props) => {
                   <Text style={{ fontWeight: 'bold', fontSize: 25 }}>선호 음악 선택</Text>
                 </View>
                 <View style={{ paddingRight: 7 }}>
-                  {[0, 1, 2, 3, 4, 5, 6, 7].map((n, index) => (
+                  {Array.from({length: 14}, (_, index) => index + 1).map((n, index) => (
                     <View key={n} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: 2 }}>
                       {allMusicInfo.slice(n * 2, (n + 1) * 2).map((music, index2) => (
                         <View key={index2} >
