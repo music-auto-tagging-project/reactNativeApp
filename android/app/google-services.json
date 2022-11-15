@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:282959929237:android:2d8d41d504ae062224209c",
         "android_client_info": {
-          "package_name": "com.draxexample"
+          "package_name": "com.prism"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "282959929237-3smj1etmg478a42qq1mcu8kne8irpiph.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.draxexample",
+            "package_name": "com.prism",
             "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
           }
         },

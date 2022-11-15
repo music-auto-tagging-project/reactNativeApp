@@ -137,7 +137,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.draxexample"
+        applicationId "com.prism"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         multiDexEnabled true

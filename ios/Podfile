@@ -3,12 +3,12 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 platform :ios, '10.0'
 
-target 'DraxExample' do
+target 'Prism' do
   config = use_native_modules!
 
   use_react_native!(:path => config["reactNativePath"])
 
-  target 'DraxExampleTests' do
+  target 'PrismTests' do
     inherit! :complete
     # Pods for testing
   end
@@ -25,10 +25,10 @@ target 'DraxExample' do
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 end
 
-target 'DraxExample-tvOS' do
-  # Pods for DraxExample-tvOS
+target 'Prism-tvOS' do
+  # Pods for Prism-tvOS
 
-  target 'DraxExample-tvOSTests' do
+  target 'Prism-tvOSTests' do
     inherit! :search_paths
     # Pods for testing
   end
