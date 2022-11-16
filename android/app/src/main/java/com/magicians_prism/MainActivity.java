@@ -1,4 +1,4 @@
-package com.prism;
+package com.magicians_prism;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

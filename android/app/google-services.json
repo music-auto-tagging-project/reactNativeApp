@@ -7,14 +7,51 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:282959929237:android:2d8d41d504ae062224209c",
+        "mobilesdk_app_id": "1:282959929237:android:708d9499f9aaf89a24209c",
+        "android_client_info": {
+          "package_name": "com.magicians_prism"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "282959929237-7fgo0gg44e0gerg3qoa67q1e91scnjfj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.magicians_prism",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "282959929237-iefi43odclm67tludv485tf1nn80o8tq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNwxKUrTMU9UQnpa-470UazzBbFtXO214"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "282959929237-iefi43odclm67tludv485tf1nn80o8tq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:282959929237:android:f3cb0029f6ab0bf124209c",
         "android_client_info": {
           "package_name": "com.prism"
         }
       },
       "oauth_client": [
         {
-          "client_id": "282959929237-3smj1etmg478a42qq1mcu8kne8irpiph.apps.googleusercontent.com",
+          "client_id": "282959929237-g96ph8vg0ptuhe6u7r5qffk86b44pg99.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.prism",
