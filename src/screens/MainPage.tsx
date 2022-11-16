@@ -145,7 +145,7 @@ const ReorderableList = (props) => {
       .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/search`)
       .then((response) => {
         let allMusicList = response.data['musicNameList']
-        // allMusicList.sort(() => Math.random() - 0.5)
+        allMusicList.sort(() => Math.random() - 0.5)
         setAllMusicInfo(allMusicList);
       }).catch(error => {
         console.log(error.config)
