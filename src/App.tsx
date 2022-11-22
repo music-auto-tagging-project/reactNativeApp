@@ -36,17 +36,21 @@ const App = () => {
 	const [userInfo, setUserInfo] = useState({})
 	const [userName, setUserName] = useState('Guest')
 	const [userImage, setUserImage] = useState('https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/user_images/userimage_sample.png')
-	const [userId, setUserId] = useState('')
+	const [userId, setUserId] = useState('3')
 	const [haveId, setHaveId] = useState(false)
 	const [loggedin, setLoggedIn] = useState(false);
 	const [loginModalOn, setLoginModalOn] = useState(false)
 	const [loginID, setLoginID] = useState('')
 	const [loginPW, setLoginPW] = useState('')
-	const [loginWithEmail, setLoginWithEmail] = useState(false)
 
 	const checkLoginDate = () => {
 		if (loginID == 'test@email.com' && loginPW == '221121') {
-			setLoginWithEmail(true)
+
+			setUserId('3')
+			setHaveId(false)
+			setLoggedIn(true)
+			setUserName('Guest')
+			setUserImage('https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/user_images/userimage_sample.png')
 		} else {
 			Alert.alert('유효하지 않은 아이디 또는 비밀번호 입니다.')
 		}
@@ -83,7 +87,6 @@ const App = () => {
 			if (user) {
 				setLoggedIn(true)
 				const user = auth().currentUser;
-				setUserInfo(user)
 				setUserName(user.displayName)
 				setUserImage(user.photoURL)
 				sendUserInfo(user.displayName, user.email)
@@ -103,7 +106,7 @@ const App = () => {
 		<CoreConsumer>
 			{({ value, name, SetName, SetValue, SetImage, SetLoggein, SetId }) => (
 				<>
-					{(loggedin || loginWithEmail) ?
+					{(loggedin) ?
 						<>
 							<>
 								{SetName(userName)}</>

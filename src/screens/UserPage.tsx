@@ -28,7 +28,7 @@ const ColorDragDrop = (props: any) => {
 	const [refreshing, setRefreshing] = React.useState(false);
 	const onRefresh = React.useCallback(() => {
 		axios
-			.get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/user/info/${userId}`)
+			.get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/user/info/${result.id}`)
 			.then((response) => {
 				setAutoTag(response.data['unfixedTagList']);
 				setFixedTag(response.data['fixedTagList']);
@@ -90,7 +90,7 @@ const ColorDragDrop = (props: any) => {
 
 	function onClickMusic(music_id: number) {
 		axios
-			.get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/music/stream/${userId}/${music_id}`).
+			.get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/music/stream/${result.id}/${music_id}`).
 			then((response) => {
 				setMusicInfo(response.data);
 			}).catch(error => {
@@ -117,16 +117,53 @@ const ColorDragDrop = (props: any) => {
 
 	const sendAddedMusic = () => {
 		if (playlistIdInAdding != 0) {
+			let playlistIdSet = []
+			clickedPlaylist.map((music, index) => {
+				playlistIdSet.push(music.id)
+			})
+			let newPlaylist = [...playlistIdSet,...Array.from(addedMusics)]
 			axios.post("http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/playlist/add/music", {
-				"userId": userId,
+				"userId": result.id,
 				"playlistId": playlistIdInAdding,
-				"musicIdList": Array.from(addedMusics)
+				"musicIdList": newPlaylist
 			}).catch(error => {
 				console.log(error.config)
 			})
 			// console.log('added' + Array.from(addedMusics))
 			console.log('id' + playlistIdInAdding)
 		}
+	}
+
+	function notIn(array) {
+		return function (item) {
+			return array.indexOf(item) < 0;
+		};
+	}
+
+	const sendDeleteSong = () => {
+		let playlistIdSet = []
+		clickedPlaylist.map((music, index) => {
+			playlistIdSet.push(music.id)
+		})
+		let newPlaylist: [] = []
+		playlistIdSet.map((id, index) => {
+			if (!(Array.from(checkedSong).includes(id))) {
+				newPlaylist.push(id)
+			}
+		}
+		)
+		console.log(newPlaylist)
+		setTimeout(() => {
+			setCheckedSong(new Set());
+			axios.post("http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/playlist/add/music", {
+				"userId": result.id,
+				"playlistId": playlistIdInAdding,
+				"musicIdList": newPlaylist
+			}).catch(error => {
+				console.log(error.config)
+			})
+			setTimeout(() => { setPlaylistSetting(false); clickPlaylist(playlistIdInAdding) }, 100)
+		}, 100)
 	}
 
 	const addMusicInTempList = () => {
@@ -219,7 +256,7 @@ const ColorDragDrop = (props: any) => {
 	useEffect(() => {
 
 		axios
-			.get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/main/${userId}`)
+			.get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/main/${result.id}`)
 			.then((response) => {
 				setUserName(response.data['userName']);
 				setUserImage(response.data['userImage']);
@@ -236,7 +273,7 @@ const ColorDragDrop = (props: any) => {
 	useEffect(() => {
 
 		axios
-			.get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/main/${userId}`)
+			.get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/main/${result.id}`)
 			.then((response) => {
 				setRMusicList(response.data["recommendMusicList"]);
 				setPMusicList(response.data["playedMusicList"]);
@@ -266,6 +303,7 @@ const ColorDragDrop = (props: any) => {
 		}
 		setCheckedSong(checkedSong)
 		setCheckedSongLength(checkedSong.size)
+		console.log(checkedSong)
 	}
 
 	const changeTagState = (tag, e) => {
@@ -300,7 +338,7 @@ const ColorDragDrop = (props: any) => {
 		deletedTag.map((tag, index) => (add_list.push({ "tagName": tag, "isFixed": 'DELETED' })))
 
 		axios.post("http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/user/tag", {
-			"userId": userId,
+			"userId": result.id,
 			"userTagList": add_list
 		})
 		console.log('fixed : ' + fixedTag)
@@ -360,7 +398,7 @@ const ColorDragDrop = (props: any) => {
 			});
 
 		axios
-			.get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/user/info/${userId}`)
+			.get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/user/info/${result.id}`)
 			.then((response) => {
 				setAutoTag(response.data['unfixedTagList']);
 				setFixedTag(response.data['fixedTagList']);
@@ -392,7 +430,7 @@ const ColorDragDrop = (props: any) => {
 
 	return (
 		<CoreConsumer>
-			{({ value, image, name, SetValue, SetName }) => (
+			{({ value, image, name, id, SetValue, SetName, SetId, SetImage, SetLoggein }) => (
 				<View>
 					{/* 플레이리스트 삭제 모달 */}
 					<Modal
@@ -466,7 +504,7 @@ const ColorDragDrop = (props: any) => {
 								<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 									<Text style={{ fontSize: 25, fontWeight: 'bold' }}>플레이스트</Text>
 									<View style={{ width: '100%', alignItems: 'flex-end', position: 'absolute', padding: 15 }}>
-										<TouchableOpacity onPress={() => { setDeleteMusicModal(false); setDeleteModal(true); unselectAll() }}>
+										<TouchableOpacity onPress={() => { setDeleteMusicModal(false); setDeleteModal(true); unselectAll(); sendDeleteSong(); }}>
 											<Text style={{ color: 'black', fontSize: 17 }}>완료</Text>
 										</TouchableOpacity>
 									</View>
@@ -598,7 +636,7 @@ const ColorDragDrop = (props: any) => {
 						<View style={{ height: '100%', width: '100%', backgroundColor: 'rgba(50,50,50,0.3)', justifyContent: 'flex-end', alignItems: 'center' }}>
 							<View style={{ width: '100%', height: 200, position: 'absolute', backgroundColor: 'white', borderRadius: 15 }}>
 								<View style={{ paddingRight: 10, marginTop: 30, flex: 1 }}>
-									<View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontSize: 20, fontWeight: 'bold' }}>벚꽃 엔딩</Text></View>
+									<View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontSize: 20, fontWeight: 'bold' }}>지원 되지 않는 기능</Text></View>
 								</View>
 								<View style={{ alignItems: 'center', flex: 5, justifyContent: 'center' }}>
 									<Text style={{ fontSize: 17, marginVertical: 3 }}>해당 곡을 플레이리스트에서</Text>
@@ -623,7 +661,7 @@ const ColorDragDrop = (props: any) => {
 							<View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
 								<TouchableOpacity onPress={() => { setAddMusicModal(false); setAddedMusics(new Set()); }} style={{ flex: 1 }}><Text style={{ fontSize: 17 }}>취소</Text></TouchableOpacity>
 								<View style={{ flex: 7, alignItems: 'center' }}><Text style={{ fontSize: 20, fontWeight: 'bold' }}>곡 추가</Text></View>
-								<TouchableOpacity onPress={() => { setAddMusicModal(false); setAddedMusics(new Set()); sendAddedMusic() }} style={{ flex: 1 }}><Text style={{ fontSize: 17 }}>완료</Text></TouchableOpacity>
+								<TouchableOpacity onPress={() => { setAddMusicModal(false); setAddedMusics(new Set()); sendAddedMusic(); setPlaylistSetting(false); setTimeout(()=>{clickPlaylist(playlistIdInAdding)},300) }} style={{ flex: 1 }}><Text style={{ fontSize: 17 }}>완료</Text></TouchableOpacity>
 							</View>
 							<TextInput placeholder='검색' style={{ fontSize: 20, borderBottomWidth: 2, padding: 5, marginVertical: 15 }}></TextInput>
 							<View style={{ flexDirection: 'row', marginVertical: 15, alignItems: 'flex-start' }}>
@@ -676,7 +714,7 @@ const ColorDragDrop = (props: any) => {
 							</View>
 							<TouchableOpacity onPress={() => { setAddMusicModal(true) }} style={{ marginTop: 15, flexDirection: 'row', alignItems: 'center' }}>
 								<Icon name='plus-circle-outline' size={20}></Icon>
-								<Text style={{ fontSize: 17 }}>   플레이리스트 곡 수정</Text>
+								<Text style={{ fontSize: 17 }}>   새로운 플레이리스트 추가</Text>
 							</TouchableOpacity>
 							{!selectAll ?
 								<TouchableOpacity onPress={() => {
@@ -792,9 +830,9 @@ const ColorDragDrop = (props: any) => {
 										</TouchableOpacity>
 									</View>
 								</View>
-								<TouchableOpacity onPress={() => { setAddMusicModal(true);}} style={{ marginVertical: 15, flexDirection: 'row', alignItems: 'center', width: 200 }}>
+								<TouchableOpacity onPress={() => { setAddMusicModal(true); }} style={{ marginVertical: 15, flexDirection: 'row', alignItems: 'center', width: 200 }}>
 									<Icon name='plus-circle-outline' size={20}></Icon>
-									<Text style={{ fontSize: 17 }}>   플레이리스트 곡 수정</Text>
+									<Text style={{ fontSize: 17 }}>   새로운 곡 추가하기</Text>
 								</TouchableOpacity>
 								<View style={{}}>
 									{clickedPlaylist.map((music, index) => {
@@ -966,8 +1004,13 @@ const ColorDragDrop = (props: any) => {
 										<Text style={{ fontSize: 25, fontWeight: 'bold' }}>{name}님</Text>
 									</View>
 									<TouchableOpacity onPress={() => {
-										auth().signOut();
-										GoogleSignin.revokeAccess();
+										if (id != '3') {
+											auth().signOut();
+											GoogleSignin.revokeAccess();
+										}
+										else {
+											SetLoggein(false)
+										}
 									}}>
 										<View style={{ flexDirection: 'row' }}>
 											<ImageBackground source={{ uri: `https://music-auto-tag.s3.ap-northeast-2.amazonaws.com/user_images/userimage_sample.png` }}
@@ -1083,7 +1126,7 @@ const ColorDragDrop = (props: any) => {
 												</View>
 												<View style={{ padding: 10, width: '100%' }}>
 													<View style={{ marginLeft: 5 }}>
-														<Text style={{ fontSize: 18, color: 'black' }}>{'플레이리스트_' + list.id}</Text>
+														<Text style={{ fontSize: 18, color: 'black' }}>{['다시 듣기 리스트', '추천 음악 리스트', '플레이리스트_1', '플레이리스트_2'][index]}</Text>
 														<Text style={{ fontSize: 15, color: '#454545' }}>{'2022-11'}</Text>
 													</View>
 												</View>

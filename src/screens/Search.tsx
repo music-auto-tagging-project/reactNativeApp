@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 import { Modal, TextInput, Image, BackHandler, StyleSheet, Pressable, SafeAreaView, ScrollView, StatusBar, Text, TouchableHighlight, TouchableOpacity, View, PanResponder } from 'react-native';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useContext } from 'react';
 import rStyles from '../styles/styles'
 import musicData from '../etc/added_music_data.json'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import * as Hangul from 'hangul-js';
+import { CoreContext, CoreConsumer } from '../context/CoreManagement';
 
 const recent_search = ['멜로망스', '트와이스', '비도 오고 그래서']
 
@@ -27,11 +28,12 @@ function Search() {
   const [artistsMusic, setArtistsMusic] = useState([])
   const [artistModalTitle, setArtistModalTitle] = useState('Artist')
   const [rMusicList, setRMusicList] = useState(['null'])
+  const result = useContext(CoreContext);
 
   useEffect(() => {
 
     axios
-      .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/main/${userId}`)
+      .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/main/${result.id}`)
       .then((response) => {
         setRMusicList(response.data["recommendMusicList"]);
       }).catch(error => {
@@ -42,7 +44,7 @@ function Search() {
 
   function onClickMusic(music_id: number) {
     axios
-      .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/music/stream/${userId}/${music_id}`).
+      .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/music/stream/${result.id}/${music_id}`).
       then((response) => {
         setMusicInfo(response.data);
         console.log('abs')

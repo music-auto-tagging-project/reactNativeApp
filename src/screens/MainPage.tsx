@@ -29,7 +29,7 @@ const ReorderableList = (props) => {
   const [refreshing, setRefreshing] = React.useState(false);
   const onRefresh = React.useCallback(() => {
     axios
-      .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/main/${userId}`)
+      .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/main/${result.id}`)
       .then((response) => {
         SetbackValue(response.data['tagList']);
         setUserName(response.data['userName']);
@@ -52,8 +52,8 @@ const ReorderableList = (props) => {
   const [userName, setUserName] = useState('User Name')
   const [userId, setUserId] = useState('3')
   const [UserImage, setUserImage] = useState('null')
-  const [rMusicList, setRMusicList] = useState(['null']);
-  const [pMusicList, setPMusicList] = useState(['null']);
+  const [rMusicList, setRMusicList] = useState([]);
+  const [pMusicList, setPMusicList] = useState([]);
   const [musicInfo, setMusicInfo] = useState<any>(['null'])
   const [checkList, setCheckList] = useState([])
   const [checkTrue, setCheckTrue] = useState([false, false, false, false, false, false, false, false, false])
@@ -73,7 +73,7 @@ const ReorderableList = (props) => {
   // 음악 선택 시 
   function onClickMusic(music_id: number) {
     axios
-      .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/music/stream/${userId}/${music_id}`).
+      .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/music/stream/${result.id}/${music_id}`).
       then((response) => {
         setMusicInfo(response.data);
       }).catch(error => {
@@ -106,7 +106,7 @@ const ReorderableList = (props) => {
     const resArray = [];
     for await (const music_id of clickedSong) {
       const res = await axios
-        .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/music/stream/${userId}/${music_id}`)
+        .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/music/stream/${result.id}/${music_id}`)
       resArray.push(res.data);
     }
     setSelectTrue(!selectTrue)
@@ -124,9 +124,25 @@ const ReorderableList = (props) => {
   }
 
   useEffect(() => {
+    setTimeout(() => {
+      axios
+        .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/main/${result.id}`)
+        .then((response) => {
+          SetbackValue(response.data['tagList']);
+          setUserName(response.data['userName']);
+          setUserImage(response.data['userImage']);
+          setRMusicList(response.data["recommendMusicList"]);
+          setPMusicList(response.data["playedMusicList"]);
+        }).catch(error => {
+          console.log(error.config)
+        })
+    }, 300)
+  }, [selectTrue, result])
+
+  useEffect(() => {
 
     axios
-      .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/main/${userId}`)
+      .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/main/${result.id}`)
       .then((response) => {
         SetbackValue(response.data['tagList']);
         setUserName(response.data['userName']);
@@ -136,8 +152,7 @@ const ReorderableList = (props) => {
       }).catch(error => {
         console.log(error.config)
       })
-  }, [selectTrue]
-  )
+  }, [])
 
   useEffect(() => {
     axios
@@ -170,7 +185,7 @@ const ReorderableList = (props) => {
           <Modal
             animationType="none"
             transparent={false}
-            visible={!selectTrue}
+            visible={!selectTrue && !result.loggein}
           >
             <View style={{ flex: 11 }}>
               <ScrollView>
@@ -178,7 +193,7 @@ const ReorderableList = (props) => {
                   <Text style={{ fontWeight: 'bold', fontSize: 25 }}>선호 음악 선택</Text>
                 </View>
                 <View style={{ paddingRight: 7 }}>
-                  {Array.from({length: 14}, (_, index) => index + 1).map((n, index) => (
+                  {Array.from({ length: 14 }, (_, index) => index + 1).map((n, index) => (
                     <View key={n} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: 2 }}>
                       {allMusicInfo.slice(n * 2, (n + 1) * 2).map((music, index2) => (
                         <View key={index2} >
@@ -289,7 +304,7 @@ const ReorderableList = (props) => {
             </ScrollView>
           </Modal>
 
-          
+
           {/* 메인 페이지 */}
           <ScrollView showsVerticalScrollIndicator={false} style={rStyles.scrollView} persistentScrollbar={true}
             refreshControl={
