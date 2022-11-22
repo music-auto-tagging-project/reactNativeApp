@@ -154,7 +154,7 @@ function Search() {
                 <YoutubePlayer
                   width={435}
                   height={260}
-                  play={true}
+                  play={false}
                   videoId={musicInfo.youtubeId}
                 />
               </View>

@@ -47,7 +47,7 @@ const ColorDragDrop = (props: any) => {
 
 	const renderTime = 10
 	const [modalVisible, setModalVisible] = useState(false);
-	const [userName, setUserName] = useState('User_1')
+	const [userName, setUserName] = useState('Guest')
 	const [userId, setUserId] = useState(3)
 	const [UserImage, setUserImage] = useState('null')
 	const [fixedTag, setFixedTag] = useState<string[]>([]);
@@ -540,7 +540,7 @@ const ColorDragDrop = (props: any) => {
 										<YoutubePlayer
 											width={435}
 											height={260}
-											play={true}
+											play={false}
 											videoId={musicInfo.youtubeId}
 										/>
 									</View>
@@ -676,7 +676,7 @@ const ColorDragDrop = (props: any) => {
 							</View>
 							<TouchableOpacity onPress={() => { setAddMusicModal(true) }} style={{ marginTop: 15, flexDirection: 'row', alignItems: 'center' }}>
 								<Icon name='plus-circle-outline' size={20}></Icon>
-								<Text style={{ fontSize: 17 }}>   새로운 곡 추가하기</Text>
+								<Text style={{ fontSize: 17 }}>   플레이리스트 곡 수정</Text>
 							</TouchableOpacity>
 							{!selectAll ?
 								<TouchableOpacity onPress={() => {
@@ -794,7 +794,7 @@ const ColorDragDrop = (props: any) => {
 								</View>
 								<TouchableOpacity onPress={() => { setAddMusicModal(true);}} style={{ marginVertical: 15, flexDirection: 'row', alignItems: 'center', width: 200 }}>
 									<Icon name='plus-circle-outline' size={20}></Icon>
-									<Text style={{ fontSize: 17 }}>   새로운 곡 추가하기</Text>
+									<Text style={{ fontSize: 17 }}>   플레이리스트 곡 수정</Text>
 								</TouchableOpacity>
 								<View style={{}}>
 									{clickedPlaylist.map((music, index) => {
@@ -847,8 +847,8 @@ const ColorDragDrop = (props: any) => {
 						<ScrollView style={{ height: '100%', width: '100%', backgroundColor: 'white', paddingHorizontal: 20, paddingTop: 30 }}>
 							<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 								<Text style={{ fontSize: 25, fontWeight: 'bold', flex: 8 }}>나의 플레이스트</Text>
-								<TouchableOpacity onPress={() => { setDeletePlaylistModal(true) }} style={{ flex: 1 }}>
-									<Text style={{ fontSize: 17, color: 'green' }}>편집</Text>
+								<TouchableOpacity onPress={() => { setDeletePlaylistModal(false) }} style={{ flex: 1 }}>
+									<Text style={{ fontSize: 17, color: 'green' }}></Text>
 								</TouchableOpacity>
 							</View>
 							<TouchableOpacity onPress={() => { setNewPlaylistModal(true!) }} style={{ marginVertical: 15, flexDirection: 'row', alignItems: 'center' }}>
@@ -1066,7 +1066,7 @@ const ColorDragDrop = (props: any) => {
 											<Text style={{ fontSize: 24, color: 'black', fontWeight: 'bold' }}>플레이리스트</Text>
 										</View>
 										<View style={{ marginTop: 55, height: 30, width: '100%', position: 'absolute', justifyContent: 'center', alignItems: 'flex-end' }}>
-											<TouchableOpacity onPress={() => { setShowPlaylist(!showPlaylist) }}>
+											<TouchableOpacity onPress={() => { setShowPlaylist(false) }}>
 												<Icon name='pencil-plus' size={25} color={'#454545'} />
 											</TouchableOpacity>
 										</View>

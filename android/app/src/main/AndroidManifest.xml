@@ -10,6 +10,7 @@
       android:roundIcon="@mipmap/ic_launcher"
       android:allowBackup="false"
       android:exported="true"
+      android:usesCleartextTraffic="true"
       android:theme="@style/AppTheme">
       <activity
         android:name=".MainActivity"

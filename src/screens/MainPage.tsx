@@ -140,7 +140,6 @@ const ReorderableList = (props) => {
   )
 
   useEffect(() => {
-
     axios
       .get(`http://ec2-3-35-154-3.ap-northeast-2.compute.amazonaws.com:8080/search`)
       .then((response) => {
@@ -164,8 +163,9 @@ const ReorderableList = (props) => {
 
   return (
     <CoreConsumer>
-      {({ value, name, image, SetValue }) => (
+      {({ value, name, image, id, loggein, SetValue }) => (
         <View>
+          <></>
           {/* 선호 음악 선택 */}
           <Modal
             animationType="none"
@@ -241,7 +241,7 @@ const ReorderableList = (props) => {
                     <YoutubePlayer
                       width={435}
                       height={260}
-                      play={true}
+                      play={false}
                       videoId={musicInfo.youtubeId}
                     />
                   </View>
@@ -372,7 +372,7 @@ const ReorderableList = (props) => {
                 </Text>
               </TouchableOpacity>
               <ScrollView style={{ marginLeft: 25, paddingVertical: 15, flexDirection: 'row', height: 500 }} horizontal={true} showsHorizontalScrollIndicator={false}>
-                {Array.from(Array(Math.ceil(pMusicList.length / 5)).keys()).map((n, index) => (
+                {Array.from(Array(Math.ceil(20)).keys()).map((n, index) => (
                   <View key={index} style={{ alignItems: 'center', width: windowWidth * 0.9 }}>
                     {pMusicList.slice(n * 5, (n + 1) * 5).map((music, index) => {
                       return (
